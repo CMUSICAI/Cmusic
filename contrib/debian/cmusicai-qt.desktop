@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=CmusicAI Core
+Comment=Connect to the CmusicAI P2P Network
+Comment[de]=Verbinde mit dem CmusicAI peer-to-peer Netzwerk
+Comment[fr]=CmusicAI, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=CmusicAI, eşten eşe kriptografik sanal para birimi
+Exec=cmusicai-qt %u
+Terminal=false
+Type=Application
+Icon=cmusicai128
+MimeType=x-scheme-handler/cmusicai;
+Categories=Office;Finance;

@@ -1,0 +1,33 @@
+# /etc/conf.d/cmusicaid: config file for /etc/init.d/cmusicaid
+
+# Config file location
+#CMUSICAID_CONFIGFILE="/etc/cmusicai/cmusicai.conf"
+
+# What directory to write pidfile to?  (created and owned by $CMUSICAID_USER)
+#CMUSICAID_PIDDIR="/var/run/cmusicaid"
+
+# What filename to give the pidfile
+#CMUSICAID_PIDFILE="${CMUSICAID_PIDDIR}/cmusicaid.pid"
+
+# Where to write cmusicaid data (be mindful that the blockchain is large)
+#CMUSICAID_DATADIR="/var/lib/cmusicaid"
+
+# User and group to own cmusicaid process
+#CMUSICAID_USER="cmusicai"
+#CMUSICAID_GROUP="cmusicai"
+
+# Path to cmusicaid executable
+#CMUSICAID_BIN="/usr/bin/cmusicaid"
+
+# Nice value to run cmusicaid under
+#CMUSICAID_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#CMUSICAID_OPTS=""
+
+# The timeout in seconds OpenRC will wait for cmusicaid to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+CMUSICAID_SIGTERM_TIMEOUT=60

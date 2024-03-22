@@ -1,0 +1,8 @@
+/usr/bin/cmusicai-cli		--	gen_context(system_u:object_r:cmusicai_exec_t,s0)
+/usr/sbin/cmusicaid		--	gen_context(system_u:object_r:cmusicai_exec_t,s0)
+/usr/lib(64)?/cmusicai/cmusicaid		--	gen_context(system_u:object_r:cmusicai_exec_t,s0)
+
+/etc/cmusicai(/.*)?		gen_context(system_u:object_r:cmusicai_conf_t,s0)
+/var/lib/cmusicai(/.*)?		gen_context(system_u:object_r:cmusicai_var_lib_t,s0)
+
+(/var)?/run/cmusicaid(/.*)?   gen_context(system_u:object_r:cmusicai_var_run_t,s0)

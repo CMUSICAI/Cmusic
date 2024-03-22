@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/cmusicai/.cmusicai" ]; then
+	CMUSICAID_DEFAULT_DATADIR="/var/lib/cmusicai/.cmusicai"
+else
+	CMUSICAID_DEFAULT_DATADIR="/var/lib/cmusicaid"
+fi
+
+CMUSICAID_CONFIGFILE=${CMUSICAID_CONFIGFILE:-/etc/cmusicai/cmusicai.conf}
+CMUSICAID_PIDDIR=${CMUSICAID_PIDDIR:-/var/run/cmusicaid}
+CMUSICAID_PIDFILE=${CMUSICAID_PIDFILE:-${CMUSICAID_PIDDIR}/cmusicaid.pid}
+CMUSICAID_DATADIR=${CMUSICAID_DATADIR:-${CMUSICAID_DEFAULT_DATADIR}}
+CMUSICAID_USER=${CMUSICAID_USER:-${CMUSICAI_USER:-cmusicai}}
+CMUSICAID_GROUP=${CMUSICAID_GROUP:-cmusicai}
+CMUSICAID_BIN=${CMUSICAID_BIN:-/usr/bin/cmusicaid}
+CMUSICAID_NICE=${CMUSICAID_NICE:-${NICELEVEL:-0}}
+CMUSICAID_OPTS="${CMUSICAID_OPTS:-${CMUSICAI_OPTS}}"
+
+name="CmusicAI Core Daemon"
+description="CmusicAI cryptocurrency P2P network daemon"
+
+command="/usr/bin/cmusicaid"
+command_args="-pid=\"${CMUSICAID_PIDFILE}\" \
+		-conf=\"${CMUSICAID_CONFIGFILE}\" \
+		-datadir=\"${CMUSICAID_DATADIR}\" \
+		-daemon \
+		${CMUSICAID_OPTS}"
+
+required_files="${CMUSICAID_CONFIGFILE}"
+start_stop_daemon_args="-u ${CMUSICAID_USER} \
+			-N ${CMUSICAID_NICE} -w 2000"
+pidfile="${CMUSICAID_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${CMUSICAID_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${CMUSICAID_USER}:${CMUSICAID_GROUP}" \
+	"${CMUSICAID_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${CMUSICAID_USER}:${CMUSICAID_GROUP}" \
+	"${CMUSICAID_PIDDIR}"
+
+	checkpath -f \
+	-o ${CMUSICAID_USER}:${CMUSICAID_GROUP} \
+	-m 0660 \
+	${CMUSICAID_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${CMUSICAID_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run cmusicaid."
+		eerror "The setting must appear in ${CMUSICAID_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"CmusicAI Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

@@ -1,0 +1,23 @@
+FROM arm32v7/ubuntu:latest
+
+MAINTAINER cade <cade.call@mediciventures.com>
+
+EXPOSE $RPCPORT
+
+EXPOSE $PORT
+
+RUN useradd -ms /bin/bash cmusicai
+
+RUN mkdir /etc/cmusicai
+
+RUN mkdir /var/lib/cmusicai
+
+RUN chown cmusicai:cmusicai /etc/cmusicai /var/lib/cmusicai
+
+WORKDIR /home/cmusicai
+
+COPY --chown=cmusicai:cmusicai linux64/* ./run.sh /home/cmusicai/
+
+USER cmusicai
+
+CMD ["/home/cmusicai/run.sh"]
