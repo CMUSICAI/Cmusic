@@ -1,7 +1,7 @@
 FROM amd64/ubuntu:18.04 AS base
 
-EXPOSE 8788/tcp
-EXPOSE 9766/tcp
+EXPOSE 9819/tcp
+EXPOSE 9328/tcp
 
 ENV DEBIAN_FRONTEND=noninteractive
 
