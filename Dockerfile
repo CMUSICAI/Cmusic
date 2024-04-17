@@ -58,3 +58,6 @@ WORKDIR /home/cmusicai
 USER cmusicai
 
 CMD /usr/local/bin/cmusicaid -datadir=/var/lib/cmusicai -printtoconsole -onlynet=ipv4
+
+#Leaving this here for debugging purposes
+#CMD ["tail", "-f", "/dev/null"]
