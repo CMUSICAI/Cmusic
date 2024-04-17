@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2016 The Bitcoin Core developers
 # Copyright (c) 2017-2019 The Raven Core developers
-# Copyright (c) 2020-2021 The CmusicAI Core developers
+# Copyright (c) 2024 Cmusic.AI
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -476,7 +476,7 @@ def get_cpp_header_lines_to_insert(start_year, end_year):
 PYTHON_HEADER = '''
 # Copyright (c) %s The Bitcoin Core developers
 # Copyright (c) 2017-2019 The Raven Core developers
-# Copyright (c) 2020-2021 The CmusicAI Core developers
+# Copyright (c) 2024 Cmusic.AI
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 '''

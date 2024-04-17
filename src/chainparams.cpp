@@ -219,9 +219,8 @@ public:
         nIssueRestrictedAssetBurnAmount = 150 * COIN;
         nAddNullQualifierTagBurnAmount = 0.01 * COIN;
 		
-        // 10% of 300 CMS to operations wallet
+        // 10% of mining period blocks to operations wallet
 	    nCommunityAutonomousAmount = 10;
-        // Operations wallet placeholder
 
         // Burn Addresses
 	    strIssueAssetBurnAddress = "CcmKXqWrFrbDnywuY8F3orEnNR5L1g2mZQ";
@@ -237,8 +236,8 @@ public:
         //Global Burn Address
         strGlobalBurnAddress = "CeNvn7GXr1aLqhDx9HG9aYWnPA5qoRsz9X";
 
-        // ProofOfGame Address
-        strCommunityAutonomousAddress = "CSTR1CtKhCewb9VQndZSynu9euDg5i1YPo";
+        // Operations Address
+        strCommunityAutonomousAddress = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
 
         // DGW Activation
         nDGWActivationBlock = 1;
@@ -377,7 +376,7 @@ public:
         nIssueRestrictedAssetBurnAmount = 150 * COIN;
         nAddNullQualifierTagBurnAmount = 0.01 * COIN;
 		
-	    // 10% of 500 CMS to operations fund
+	    // 10% of mining period blocks to operations wallet
 	    nCommunityAutonomousAmount = 10;
 
         // Burn Addresses

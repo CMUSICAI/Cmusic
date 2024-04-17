@@ -1,7 +1,7 @@
 FROM amd64/ubuntu:18.04 AS base
 
-EXPOSE 8788/tcp
-EXPOSE 9766/tcp
+EXPOSE 9819/tcp
+EXPOSE 9328/tcp
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -58,3 +58,6 @@ WORKDIR /home/cmusicai
 USER cmusicai
 
 CMD /usr/local/bin/cmusicaid -datadir=/var/lib/cmusicai -printtoconsole -onlynet=ipv4
+
+#Leaving this here for debugging purposes
+#CMD ["tail", "-f", "/dev/null"]
