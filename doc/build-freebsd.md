@@ -1,4 +1,4 @@
-Build instructions for CMUSICAIcoin 
+Build instructions for Cmusic 
 =================================
 FreeBSD 13.0
 ---------------------------------
@@ -25,12 +25,12 @@ libqrencode for QR Code support.
 
 Directory structure
 ------------------
-CMUSICAIcoin sources in `$HOME/src`
+Cmusic sources in `$HOME/src`
 
 Berkeley DB will be installed to `$HOME/src/db4`
 
 
-CMUSICAIcoin
+Cmusic
 ------------------
 
 Start in $HOME
@@ -41,11 +41,11 @@ Make the directory for sources and go into it.
 
 `cd src`
 
-__Download CMUSICAIcoin source.__
+__Download Cmusic source.__
 
-`git clone https://github.com/CMUSICAIProject/CMUSICAIcoin`
+`git clone https://github.com/CMUSICAI/Cmusic`
 
-`cd CMUSICAIcoin`
+`cd Cmusic`
 
 `git checkout develop` # this checks out the develop branch.
 

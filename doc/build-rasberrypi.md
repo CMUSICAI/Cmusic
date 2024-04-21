@@ -33,11 +33,11 @@ make -j4 # If error, remove the -j4
 sudo make install
 ```
 
-# Build CMUSICAIcoin
+# Build Cmusic
 ```
 cd ~/build/
-git clone https://github.com/CMUSICAIProject/CMUSICAIcoin
-cd CMUSICAIcoin/
+git clone https://github.com/CMUSICAI/Cmusic
+cd Cmusic/
 ./autogen.sh
 ./configure --disable-tests --with-gui=no CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib"
 make

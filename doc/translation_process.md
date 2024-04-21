@@ -1,15 +1,15 @@
 Translations
 ============
 
-The CMUSICAIcoin project has been designed to support multiple localisations. This makes adding new phrases, and completely new languages easily achievable. For managing all application translations, CMUSICAIcoin makes use of the Transifex online translation management tool.
+The Cmusic project has been designed to support multiple localisations. This makes adding new phrases, and completely new languages easily achievable. For managing all application translations, Cmusic makes use of the Transifex online translation management tool.
 
 ### Helping to translate (using Transifex)
 Currently updating strings in Transifex requires a manual upload of the updated src/qt/locale/cmusicai_en.ts.
 This can easily be automated in the future.
 
-Multiple language support is critical in assisting CMUSICAIcoins global adoption, and growth. One of CMUSICAIcoins greatest strengths is cross-border money transfers, any help making that easier is greatly appreciated.
+Multiple language support is critical in assisting Cmusics global adoption, and growth. One of Cmusics greatest strengths is cross-border money transfers, any help making that easier is greatly appreciated.
 
-See the [Transifex CMS project](https://www.transifex.com/cmusicaicoin) to assist in translations. You can also join the #translations in [CMUSICAIcoin Discord](https://discord.gg/jn6uhur).
+See the [Transifex CMS project](https://www.transifex.com/cmusicaicoin) to assist in translations. You can also join the #translations in [Cmusic Discord](https://discord.gg/EanhmGKxcg).
 
 ### Writing code with translations
 We use automated scripts to help extract translations in both Qt, and non-Qt source files. It is rarely necessary to manually edit the files in `src/qt/locale/`. The translation source files must adhere to the following format:
@@ -104,6 +104,6 @@ To create a new language template, you will need to edit the languages manifest 
 This process can be automated by a [script](https://github.com/fdoving/cmusicaicoin-maintainer-tools/blob/master/update-translations.py) in [cmusicaicoin-maintainer-tools](https://github.com/fdoving/cmusicaicoin-maintainer-tools/).
 
 ### Questions and general assistance
-The CMUSICAIcoin translation maintainers include *fdov and pocal*. You can find them, and others, in #translations in [CMUSICAIcoin Discord](https://discord.gg/jn6uhur).
+The Cmusic translation maintainers include *fdov and pocal*. You can find them, and others, in #translations in [Cmusic Discord](https://discord.gg/EanhmGKxcg).
 
 Announcements will be posten in Discord and on the transifex.com [announcements page](https://www.transifex.com/cmusicaicoin/qt-translation/announcements/).

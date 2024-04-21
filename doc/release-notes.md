@@ -10,7 +10,7 @@ and performance improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
 
-  <https://github.com/CMUSICAIProject/CMUSICAIcoin/issues>
+  <https://github.com/CMUSICAI/Cmusic/issues>
 
 To receive security and update notifications, please subscribe to:
 
