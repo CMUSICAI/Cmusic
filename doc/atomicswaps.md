@@ -72,7 +72,7 @@ Extracting the txids and vouts gives us our raw inputs:
 
 ## The Outputs
 
-We'll be using 5 new CMUSICAIcoin addresses:
+We'll be using 5 new Cmusic addresses:
 
 Andy's CMS change address:
 `mvGfeg4uZA8XvjVDUywdgYE6TAyz77o5gB`

@@ -46,8 +46,8 @@ from the root of the repository.
 
 1. Clone the CmusicAI Core source code:
     ```shell
-    git clone https://github.com/CMUSICAIProject/CMUSICAIcoin
-    cd CMUSICAIcoin
+    git clone https://github.com/CMUSICAI/Cmusic
+    cd Cmusic
     ```
 
 2.  Build cmusicai-core:

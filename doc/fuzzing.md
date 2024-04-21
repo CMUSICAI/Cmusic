@@ -1,4 +1,4 @@
-Fuzz-testing CMUSICAIcoin
+Fuzz-testing Cmusic
 ==========================
 
 A special test harness `test_cmusicai_fuzzy` is provided to provide an easy

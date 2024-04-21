@@ -17,7 +17,3 @@ CmusicAI Core is the original CMS client and it builds the backbone of the netwo
 However, it downloads and stores the entire history of CMS transactions;
 depending on the speed of your computer and network connection, the synchronization
 process can take anywhere from a few hours to a day or more.
-
-See the cmusicai wiki at:
-  https://cmusicai.wiki/wiki/CMUSICAIcoin_Wiki
-for more help and information.

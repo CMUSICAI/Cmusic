@@ -130,7 +130,7 @@ protobuf-compiler
 
 Directory structure
 ------------------
-CMUSICAIcoin sources in `$HOME/src`
+Cmusic sources in `$HOME/src`
 
 Berkeley DB will be installed to `$HOME/src/db4`
 
