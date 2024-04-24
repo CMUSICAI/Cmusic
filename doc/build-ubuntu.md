@@ -152,11 +152,13 @@ __Download CMS source.__
 
 `cd CmusicAI`
 
-`git checkout develop` # this checks out the develop branch.
-
 __Download and build Berkeley DB 4.8__
 
 `contrib/install_db4.sh ../`
+
+__If you get a permission denied error, run the following command and try again:__
+
+`chmod +x contrib/install_db4.sh`
 
 __The build process:__
 
