@@ -155,10 +155,10 @@ public:
 	    consensus.BIP34LockedIn = 6048; // Locked_in at height 6048
 
         // The best chain should have at least this much work
-        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000000000"); // New blockchain, no work done yet
+        consensus.nMinimumChainWork = uint256S("00000000000000000000000000000000000000000000000001cb2477b76b256d"); // Block 66001
 
-        // By default assume that the signatures in ancestors of this block are valid. Block# 0
-        consensus.defaultAssumeValid = uint256S("0x000000fcdb664de8b9cb710ef45ac5111d0061e5cc623d8e6582399ccb2df242"); // Genesis block
+        // By default assume that the signatures in ancestors of this block are valid.
+        consensus.defaultAssumeValid = uint256S("000000000095ad9759911ad2d8bfc4c2d8271ae29e68384b97aa9f74efce85a9"); // Block 63459
 
         pchMessageStart[0] = 0x43; // C
         pchMessageStart[1] = 0x4d; // M
@@ -198,6 +198,7 @@ public:
 		checkpointData = (CCheckpointData) {
             {  
                 {0, uint256S("0x000000fcdb664de8b9cb710ef45ac5111d0061e5cc623d8e6582399ccb2df242")},
+                {63459, uint256S("0x000000000095ad9759911ad2d8bfc4c2d8271ae29e68384b97aa9f74efce85a9")},
             }
         };
 

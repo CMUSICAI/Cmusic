@@ -23,7 +23,7 @@ Register for a developer account with Apple, then download the Xcode 7.3.1 dmg f
 Transfer Xcode_7.3.1.dmg to the target machine into ~/dmg 
 
 ```
-~/cmusicaicoin/contrib/macdeploy/extract-osx-sdk.sh
+~/Cmusic/contrib/macdeploy/extract-osx-sdk.sh
 rm -rf 5.hfs MacOSX10.11.sdk Xcode_7.3.1.dmg
 ```
 
