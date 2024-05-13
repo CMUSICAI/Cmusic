@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+    cmusicai:
+        build:
+            context: .
+            dockerfile: Dockerfile.build
+        image: cmusicai:latest
+        container_name: cmusicai_node
+        volumes:
+            - cmusicai_data:/home/cmusicai/.cmusicai
+        ports:
+            - "9819:9819"
+            - "9328:9328"
+        restart: unless-stopped
+
+volumes:
+    cmusicai_data:

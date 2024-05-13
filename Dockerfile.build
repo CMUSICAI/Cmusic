@@ -1,0 +1,85 @@
+# Base stage for common dependencies
+FROM ubuntu:20.04 as base
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install common build dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential libtool autotools-dev automake pkg-config bsdmainutils wget python3 \
+    libssl-dev libevent-dev libboost-all-dev \
+    software-properties-common && \
+    echo "Installed common build dependencies"
+
+# Download and verify BerkeleyDB
+RUN echo "Setting WORKDIR to /src"
+WORKDIR /src
+RUN echo "Downloading BerkeleyDB"
+RUN wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz && \
+    echo '12edc0df75bf9abd7f82f821795bcee50f42cb2e5f76a6a281b85732798364ef  db-4.8.30.NC.tar.gz' | sha256sum -c && \
+    echo "Download and checksum verification completed."
+
+# Unpack BerkeleyDB
+RUN tar -xzvf db-4.8.30.NC.tar.gz && \
+    echo "Tar extraction completed."
+
+# Configure BerkeleyDB
+RUN cd db-4.8.30.NC/build_unix && \
+    ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/usr/local && \
+    echo "Configuration completed."
+
+# Build and install BerkeleyDB
+RUN cd db-4.8.30.NC/build_unix && \
+    make && \
+    echo "Make completed." && \
+    make install && \
+    echo "Make install completed."
+
+
+# Linux build stage
+FROM base as linux-build
+
+# Copy source code
+COPY . /src/CmusicAI
+
+# Build CmusicAI for Linux
+WORKDIR /src/CmusicAI
+RUN ./autogen.sh && \
+    ./configure LDFLAGS="-L/usr/local/lib/" CPPFLAGS="-I/usr/local/include/" --enable-cxx --disable-shared --with-pic --with-bdb-libdir=/usr/local/lib --with-bdb-includedir=/usr/local/include && \
+    make
+
+# Windows cross-compilation stage
+FROM base as windows-build
+
+# Install Mingw-w64
+RUN apt-get install -y --no-install-recommends g++-mingw-w64-x86-64 mingw-w64-x86-64-dev
+
+# Copy source code
+COPY . /src/CmusicAI
+
+# Build CmusicAI for Windows
+WORKDIR /src/CmusicAI
+RUN PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') && \
+    ./autogen.sh && \
+    ./configure --prefix=/src/CmusicAI/depends/x86_64-w64-mingw32 \
+        --host=x86_64-w64-mingw32 \
+        --enable-cxx \
+        --disable-shared \
+        --with-pic \
+        LDFLAGS="-L/usr/local/lib/" \
+        CPPFLAGS="-I/usr/local/include/" && \
+    make
+
+# Final stage to gather all binaries
+FROM ubuntu:20.04 as final
+
+# Copy Linux binaries
+COPY --from=linux-build /src/CmusicAI/src/cmusicaid /usr/local/bin/cmusicaid
+COPY --from=linux-build /src/CmusicAI/src/cmusicai-cli /usr/local/bin/cmusicai-cli
+
+# Copy Windows binaries
+COPY --from=windows-build /src/CmusicAI/src/cmusicaid.exe /usr/local/bin/cmusicaid.exe
+COPY --from=windows-build /src/CmusicAI/src/cmusicai-cli.exe /usr/local/bin/cmusicai-cli.exe
+
+# Set the entrypoint to run the daemon
+ENTRYPOINT ["/usr/local/bin/cmusicaid"]
