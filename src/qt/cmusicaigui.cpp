@@ -1921,6 +1921,6 @@ void CmusicAIGUI::mnemonic()
 
 void CmusicAIGUI::getLatestVersion()
 {
-    versionRequest->setUrl(QUrl("https://api.github.com/repos/JustAResearcher/CmusicAI/releases"));
+    versionRequest->setUrl(QUrl("https://api.github.com/repos/CMUSICAI/Cmusic/releases"));
     networkVersionManager->get(*versionRequest);
 }

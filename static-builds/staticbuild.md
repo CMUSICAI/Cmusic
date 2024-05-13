@@ -3,9 +3,9 @@ From an ubuntu 18 bionic server(required)
 ```
 cd ~/
 export PATH_orig=$PATH
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 sudo apt install -y curl g++-aarch64-linux-gnu g++-7-aarch64-linux-gnu gcc-7-aarch64-linux-gnu binutils-aarch64-linux-gnu g++-arm-linux-gnueabihf g++-7-arm-linux-gnueabihf gcc-7-arm-linux-gnueabihf binutils-arm-linux-gnueabihf g++-7-multilib gcc-7-multilib binutils-gold git pkg-config autoconf libtool automake bsdmainutils ca-certificates python
-git clone https://github.com/CMUSICAI/CmusicAI-master
+git clone https://github.com/CMUSICAI/Cmusic.git
 mkdir -p release
 cd cmusicaicoin/depends
 make HOST=x86_64-linux-gnu -j4
@@ -57,9 +57,9 @@ From an ubuntu 18 bionic server(required)
 ```
 cd ~/
 export PATH_orig=$PATH
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 sudo apt install -y curl g++-aarch64-linux-gnu g++-7-aarch64-linux-gnu gcc-7-aarch64-linux-gnu binutils-aarch64-linux-gnu g++-arm-linux-gnueabihf g++-7-arm-linux-gnueabihf gcc-7-arm-linux-gnueabihf binutils-arm-linux-gnueabihf g++-7-multilib gcc-7-multilib binutils-gold git pkg-config autoconf libtool automake bsdmainutils ca-certificates python
-git clone https://github.com/CMUSICAI/CmusicAI-master
+git clone https://github.com/CMUSICAI/Cmusic.git
 mkdir -p release
 mkdir -p ~/wrapped
 mkdir -p ~/wrapped/extra_includes
@@ -122,9 +122,9 @@ From an ubuntu 18 bionic server(required)
 ```
 cd ~/
 export PATH_orig=$PATH
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 sudo apt install -y curl g++-aarch64-linux-gnu g++-7-aarch64-linux-gnu gcc-7-aarch64-linux-gnu binutils-aarch64-linux-gnu g++-arm-linux-gnueabihf g++-7-arm-linux-gnueabihf gcc-7-arm-linux-gnueabihf binutils-arm-linux-gnueabihf g++-7-multilib gcc-7-multilib binutils-gold git pkg-config autoconf libtool automake bsdmainutils ca-certificates python
-git clone https://github.com/CMUSICAI/CmusicAI-master
+git clone https://github.com/CMUSICAI/Cmusic.git
 mkdir -p release
 cd cmusicaicoin/depends
 make HOST=arm-linux-gnueabihf -j4
@@ -156,9 +156,9 @@ From an ubuntu 18 bionic server(required)
 ```
 cd ~/
 export PATH_orig=$PATH
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 sudo apt install -y curl g++-aarch64-linux-gnu g++-7-aarch64-linux-gnu gcc-7-aarch64-linux-gnu binutils-aarch64-linux-gnu g++-arm-linux-gnueabihf g++-7-arm-linux-gnueabihf gcc-7-arm-linux-gnueabihf binutils-arm-linux-gnueabihf g++-7-multilib gcc-7-multilib binutils-gold git pkg-config autoconf libtool automake bsdmainutils ca-certificates python
-git clone https://github.com/CMUSICAI/CmusicAI-master
+git clone https://github.com/CMUSICAI/Cmusic.git
 mkdir -p release
 cd cmusicaicoin/depends
 make HOST=aarch64-linux-gnu -j4
@@ -190,11 +190,11 @@ From an ubuntu 18 bionic server(required)
 ```
 cd ~/
 export PATH_orig=$PATH
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 sudo apt install -y build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git python nsis rename zip
 sudo apt install -y g++-mingw-w64-x86-64
 sudo update-alternatives --config x86_64-w64-mingw32-g++ # Set the default mingw32 g++ compiler option to posix.
-git clone https://github.com/CMUSICAI/CmusicAI-master
+git clone https://github.com/CMUSICAI/Cmusic.git
 mkdir -p release
 mkdir -p release/unsigned/
 mkdir -p sign/win64
@@ -243,7 +243,7 @@ From an Ubuntu 16.04 xenial machine !important (openssl 1.0.2 required)
 This process requires core to have a pvk file (kept secret)and a cert in PEM format(from comodo) as a part of the repo at contrib/windeploy
 ```
 cd ~/
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils libcurl4-openssl-dev curl libssl-dev autoconf
 wget https://bitcoincore.org/cfields/osslsigncode-Backports-to-1.7.1.patch
 wget http://downloads.sourceforge.net/project/osslsigncode/osslsigncode/osslsigncode-1.7.1.tar.gz
@@ -272,11 +272,11 @@ From an ubuntu 18 bionic server(required)
 ```
 cd ~/
 export PATH_orig=$PATH
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 sudo apt install -y build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git python nsis rename zip
 sudo apt install -y g++-mingw-w64-i686 mingw-w64-i686-dev
 sudo update-alternatives --config i686-w64-mingw32-g++  # Set the default mingw32 g++ compiler option to posix.
-git clone https://github.com/CMUSICAI/CmusicAI-master
+git clone https://github.com/CMUSICAI/Cmusic.git
 mkdir -p release
 mkdir -p release/unsigned/
 mkdir -p sign/win32
@@ -325,7 +325,7 @@ From an Ubuntu 16.04 xenial machine !important (openssl 1.0.2 required)
 This process requires core to have a pvk file (kept secret)and a cert in PEM format(from comodo) as a part of the repo at contrib/windeploy
 ```
 cd ~/
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils libcurl4-openssl-dev curl libssl-dev autoconf
 wget https://bitcoincore.org/cfields/osslsigncode-Backports-to-1.7.1.patch
 wget http://downloads.sourceforge.net/project/osslsigncode/osslsigncode/osslsigncode-1.7.1.tar.gz
@@ -354,7 +354,7 @@ From an ubuntu 18 bionic server(required)
 ```
 cd ~/
 sudo apt install git p7zip-full sleuthkit
-git clone https://github.com/CMUSICAI/CmusicAI-master
+git clone https://github.com/CMUSICAI/Cmusic.git
 mkdir ~/dmg && cd ~/dmg
 #Register for a developer account with Apple, then download the Xcode 7.3.1 dmg from: https://developer.apple.com/devcenter/download.action?path=/Developer_Tools/Xcode_9.4.1/Xcode_9.4.1.dmg
 #Transfer Xcode_7.3.1.dmg to the target machine into ~/dmg 
@@ -370,9 +370,9 @@ From an ubuntu 18 bionic server(required)
 ```
 cd ~/
 export PATH_orig=$PATH
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 sudo apt install ca-certificates curl g++ git pkg-config autoconf librsvg2-bin libtiff-tools libtool automake bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python python-dev python-setuptools fonts-tuffy
-git clone https://github.com/CMUSICAI/CmusicAI-master
+git clone https://github.com/CMUSICAI/Cmusic.git
 mkdir ~/cmusicaicoin/depends/SDKs
 #transfer MacOSX10.11.sdk.tar.gz to the folder cmusicaicoin/depends/SDKs
 cd cmusicaicoin/depends/SDKs && tar -xf MacOSX10.11.sdk.tar.gz 
@@ -419,7 +419,7 @@ export PATH=$PATH_orig
 # Signing MacOS builds #
 From a Apple MacOS device: open terminal
 ```
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 xcode-select --install
 cd ~/desktop
 mkdir OSX
@@ -435,7 +435,7 @@ tar xf $DISTNAME-osx-unsigned.tar.gz
 ```
 From the ubuntu 18 bionic server(required) build machine:
 ```
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 cd ~/sign
 mkdir OSX/
 cp $DISTNAME-osx-unsigned.tar.gz OSX
@@ -456,7 +456,7 @@ rm -rf OSX
 # Checksum all the builds #
 From the ubuntu 18 bionic server(required) build machine
 ```
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.1.0
 #transfer your *-secret-gpg.key and *-ownertrust-gpg.txt to ~/
 #import your PGP keys
 gpg --import *-secret-gpg.key
