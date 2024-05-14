@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Set DISTNAME, BRANCH and MAKEOPTS to the desired settings
-DISTNAME=cmusicai-1.1.0
+DISTNAME=cmusicai-1.0.1
 MAKEOPTS="-j4"
 BRANCH=master
 clear
