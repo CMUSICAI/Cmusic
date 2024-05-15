@@ -1,4 +1,4 @@
-FROM amd64/ubuntu:18.04 AS base
+FROM ubuntu:20.04 AS base
 
 EXPOSE 9819/tcp
 EXPOSE 9328/tcp

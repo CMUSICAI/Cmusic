@@ -1,0 +1,96 @@
+# Use Ubuntu 20.04 as the base image
+FROM ubuntu:20.04 as base
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install necessary dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential libssl-dev libtool autotools-dev automake pkg-config bsdmainutils wget curl patch python3 git \
+    libboost-chrono-dev libboost-filesystem-dev libboost-program-options-dev libboost-system-dev libboost-thread-dev libboost-test-dev \
+    qtbase5-dev qttools5-dev bison libexpat1-dev libdbus-1-dev libfontconfig-dev libfreetype6-dev libice-dev libsm-dev \
+    libx11-dev libxau-dev libxext-dev libevent-dev libxcb1-dev libxkbcommon-dev libminiupnpc-dev libprotobuf-dev libqrencode-dev \
+    xcb-proto x11proto-xext-dev x11proto-dev xtrans-dev zlib1g-dev libczmq-dev protobuf-compiler ca-certificates nsis
+
+# Install specific gcc and g++ version
+RUN apt-get install -y gcc-9 g++-9 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 10 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 10
+
+# Define the installation directory for Berkeley DB
+ENV BDB_PREFIX=/usr/local/db4
+
+# Copy the db4 installation script from the contrib directory into the container
+COPY contrib/install_db4.sh /usr/local/bin/install_db4.sh
+
+# Make the script executable
+RUN chmod +x /usr/local/bin/install_db4.sh
+
+# Run the db4 installation script
+RUN /usr/local/bin/install_db4.sh /usr/local
+
+# Set environment variables for Berkeley DB
+ENV BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8"
+ENV BDB_CFLAGS="-I${BDB_PREFIX}/include"
+
+# Build UniValue as a separate stage
+FROM ubuntu:20.04 as univalue-build
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install necessary dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential libtool autotools-dev automake pkg-config git ca-certificates
+
+# Clone and build UniValue
+RUN git -c http.sslVerify=false clone https://github.com/bitcoin-core/univalue.git /tmp/univalue && \
+    cd /tmp/univalue && \
+    ./autogen.sh && \
+    ./configure && \
+    make && \
+    make install && \
+    ldconfig
+
+# Check if UniValue is installed correctly
+RUN if [ ! -f /usr/local/lib/libunivalue.a ]; then echo "UniValue build failed"; exit 1; fi
+
+# Linux build stage
+FROM base as linux-build
+
+# Copy Berkeley DB and UniValue from the build stages
+COPY --from=base /usr/local/db4 /usr/local/db4
+COPY --from=univalue-build /usr/local /usr/local
+
+# Verify UniValue library and headers
+RUN ls -l /usr/local/lib/libunivalue* && ls -l /usr/local/include/univalue*
+
+# Set environment variables for Berkeley DB and UniValue
+ENV BDB_LIBS="-L/usr/local/db4/lib -ldb_cxx-4.8"
+ENV BDB_CFLAGS="-I/usr/local/db4/include"
+ENV UNIVALUE_LIBS="-L/usr/local/lib -lunivalue"
+ENV UNIVALUE_CFLAGS="-I/usr/local/include"
+
+# Copy source code
+COPY . /Cmusic
+
+# Build CmusicAI for Linux
+WORKDIR /Cmusic
+RUN ./autogen.sh && \
+    ./configure LDFLAGS="${BDB_LIBS} ${UNIVALUE_LIBS}" CPPFLAGS="${BDB_CFLAGS} ${UNIVALUE_CFLAGS}" --enable-cxx --disable-shared --with-pic --with-bdb-libdir=/usr/local/db4/lib --with-bdb-includedir=/usr/local/db4/include && \
+    make && \
+    make -C src/qt | tee make-qt.log
+
+# Final stage to gather all binaries
+FROM ubuntu:20.04 as final
+
+# Create builds directory structure
+RUN mkdir -p /builds/linux
+
+# Copy Linux binaries
+COPY --from=linux-build /Cmusic/src/cmusicaid /builds/linux/cmusicaid
+COPY --from=linux-build /Cmusic/src/cmusicai-cli /builds/linux/cmusicai-cli
+COPY --from=linux-build /Cmusic/src/qt/cmusicai-qt /builds/linux/cmusicai-qt
+
+# Set the entrypoint to run the daemon (optional, remove if not needed)
+ENTRYPOINT ["/builds/linux/cmusicaid"]

@@ -70,7 +70,7 @@ This process requires core to have a pvk file (kept secret)and a cert in PEM for
 
 ```
 cd ~/
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.0.1
 sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils libcurl4-openssl-dev curl libssl-dev autoconf
 wget https://bitcoincore.org/cfields/osslsigncode-Backports-to-1.7.1.patch
 wget http://downloads.sourceforge.net/project/osslsigncode/osslsigncode/osslsigncode-1.7.1.tar.gz
@@ -105,7 +105,7 @@ This process requires core to have a pvk file (kept secret)and a cert in PEM for
 
 ```
 cd ~/
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.0.1
 sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils libcurl4-openssl-dev curl libssl-dev autoconf
 wget https://bitcoincore.org/cfields/osslsigncode-Backports-to-1.7.1.patch
 wget http://downloads.sourceforge.net/project/osslsigncode/osslsigncode/osslsigncode-1.7.1.tar.gz
@@ -138,7 +138,7 @@ Transfer cmusicai-*-win*-setup.exe back to the Ubuntu18 build machine to the fol
 From a Apple MacOS device: open terminal
 
 ```
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.0.1
 xcode-select --install
 cd ~/desktop
 mkdir OSX
@@ -160,7 +160,7 @@ Copy signature-osx.tar.gz back to the ubuntu 18 build machine
 
 From the ubuntu 18 bionic server(required) build machine
 ```
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.0.1
 cd ~/sign
 mkdir OSX/
 cp $DISTNAME-osx-unsigned.tar.gz OSX
@@ -184,7 +184,7 @@ Checksum all the binaries
 
 From the ubuntu 18 bionic server(required) build machine
 ```
-DISTNAME=cmusicai-2.0.1
+DISTNAME=cmusicai-1.0.1
 ```
 Transfer your *-secret-gpg.key and *-ownertrust-gpg.txt to ~/  
 Import your PGP keys
