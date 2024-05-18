@@ -123,3 +123,7 @@ contrib/devtools/split-debug.sh
 cmake-build-debug
 
 CMakeLists.txt
+
+#seeds stuff
+contrib/seeds/venv
+contrib/seeds/peers.json
