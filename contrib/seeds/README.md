@@ -1,19 +1,47 @@
-# Seeds
+# CmusicAI Seed Generation
 
-Utility to generate the seeds.txt list that is compiled into the client
-(see [src/chainparamsseeds.h](/src/chainparamsseeds.h) and other utilities in [contrib/seeds](/contrib/seeds)).
+Utility to generate the `seeds.txt` list that is compiled into the client (see [src/chainparamsseeds.h](/src/chainparamsseeds.h) and other utilities in [contrib/seeds](/contrib/seeds)).
 
-Be sure to update `PATTERN_AGENT` in `makeseeds.py` to include the current version,
-and remove old versions as necessary.
+Be sure to update `PATTERN_AGENT` in `makeseeds.py` to include the current version, and remove old versions as necessary.
 
-The seeds compiled into the release are created from sipa's DNS seed data, like this:
+## Steps to Generate Seeds
 
-    curl -s http://cmusicai.sipa.be/seeds.txt.gz | gzip -dc > seeds_main.txt
-    python3 makeseeds.py < seeds_main.txt > nodes_main.txt
-    python3 generate-seeds.py . > ../../src/chainparamsseeds.h
+1. **Fetch the Peer Data:**
+
+   Use `curl` to get the peer data from the provided URL:
+
+   ```shell
+   curl -s https://explorer.cmusic.ai/ext/getnetworkpeers > peers.json
+   ```
+
+2. **Run `makeseeds.py`:**
+
+   With `seeds_main.txt` generated, run `makeseeds.py`:
+
+   ```shell
+   python3 makeseeds.py > nodes_main.txt
+   ```
+
+3. **Generate `chainparamsseeds.h`:**
+
+   Run `generate-seeds.py` to create `chainparamsseeds.h`:
+
+   ```shell
+   python3 generate-seeds.py . > ../../src/chainparamsseeds.h
+   ```
 
 ## Dependencies
 
-Ubuntu:
+Ensure you have the necessary dependencies installed. For Ubuntu, install `python3-dnspython`:
 
-    sudo apt-get install python3-dnspython
+```shell
+sudo apt-get install python3-dnspython
+```
+
+For macOS, install `dnspython`:
+
+```shell
+pip3 install --user dnspython
+```
+
+By following these steps, you will generate the necessary seed data to be compiled into the CmusicAI client, aiding new clients in connecting to the network.
