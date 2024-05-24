@@ -9,7 +9,9 @@ on:
       - main
       - develop
       - release*
-  workflow_dispatch:
+  release:
+    types:
+      - created
 
 env:
   SCRIPTS: ${{ github.workspace }}/.github/scripts
@@ -45,59 +47,92 @@ jobs:
       matrix:
         OS: [ 'windows', 'linux', 'linux-disable-wallet', 'arm32v7', 'arm32v7-disable-wallet', 'aarch64', 'aarch64-disable-wallet' ]
     steps:
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Checkout the Code
-      uses: actions/checkout@v1
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Checkout the Code
+        uses: actions/checkout@v1
 
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Set execute permissions on scripts
-      run: sudo chmod +x ${SCRIPTS}/*.sh
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Set execute permissions on scripts
+        run: sudo chmod +x ${SCRIPTS}/*.sh
 
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Install Build Tools
-      run: sudo ${SCRIPTS}/00-install-deps.sh ${{ matrix.OS }}
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Install Build Tools
+        run: sudo ${SCRIPTS}/00-install-deps.sh ${{ matrix.OS }}
 
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Cache dependencies.
-      uses: actions/cache@v4
-      with:
-        path: |
-          ${{ github.workspace }}/depends/built
-          ${{ github.workspace }}/depends/sources
-          ${{ github.workspace }}/depends/work
-        key: ${{ matrix.OS }}
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ github.workspace }}/depends/built
+            ${{ github.workspace }}/depends/sources
+            ${{ github.workspace }}/depends/work
+          key: ${{ matrix.OS }}
 
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Build dependencies.
-      run: ${SCRIPTS}/02-copy-build-dependencies.sh ${{ matrix.OS }} ${{ github.workspace }} ${{ github.base_ref }} ${{ github.ref }}
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Build dependencies
+        run: ${SCRIPTS}/02-copy-build-dependencies.sh ${{ matrix.OS }} ${{ github.workspace }} ${{ github.base_ref }} ${{ github.ref }}
 
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Add Dependencies to the System PATH
-      run: ${SCRIPTS}/03-export-path.sh ${{ matrix.OS }} ${{ github.workspace }}
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Add Dependencies to the System PATH
+        run: ${SCRIPTS}/03-export-path.sh ${{ matrix.OS }} ${{ github.workspace }}
 
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Build Config
-      run: cd ${{ github.workspace }} && ./autogen.sh
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Build Config
+        run: cd ${{ github.workspace }} && ./autogen.sh
 
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Configure Build
-      run: ${SCRIPTS}/04-configure-build.sh ${{ matrix.OS }} ${{ github.workspace }}
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Configure Build
+        run: ${SCRIPTS}/04-configure-build.sh ${{ matrix.OS }} ${{ github.workspace }}
 
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Build CmusicAI
-      run: make -j2
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Build CmusicAI
+        run: make -j2
 
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Check Binary Security
-      run: ${SCRIPTS}/05-binary-checks.sh ${{ matrix.OS }} ${{ github.workspace }}
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Check Binary Security
+        run: ${SCRIPTS}/05-binary-checks.sh ${{ matrix.OS }} ${{ github.workspace }}
 
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Package Up the Build
-      run: ${SCRIPTS}/06-package.sh ${{ matrix.OS }} ${{ github.workspace }} ${{ github.base_ref }} ${{ github.ref }}
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Package Up the Build
+        run: |
+          VERSION=${{ github.event.release.tag_name }}
+          OS=${{ matrix.OS }}
+          ${SCRIPTS}/06-package.sh $OS ${{ github.workspace }} $VERSION
 
-    - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-      name: Upload Artifacts to Job
-      uses: actions/upload-artifact@master
-      with:
-        name: ${{ matrix.OS }}
-        path: ${{ github.workspace }}/release
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Upload Artifacts to Job
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.OS }}
+          path: ${{ github.workspace }}/release
+
+  attach-release:
+    needs: build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.OS }}
+          path: ./release
+
+      - name: Get Release ID
+        id: get_release_id
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const { data: release } = await github.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: context.payload.release.tag_name
+            });
+            return { id: release.data.id, upload_url: release.data.upload_url };
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.get_release_id.outputs.upload_url }}
+          asset_path: ./release/${{ matrix.OS }}-output-file.zip
+          asset_name: ${{ matrix.OS }}-output-file.zip
+          asset_content_type: application/zip
