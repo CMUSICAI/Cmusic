@@ -9,6 +9,7 @@ on:
       - main
       - develop
       - release*
+  workflow_dispatch:
 #    paths-ignore:
 #      - 'binaries/**'
 #      - 'community/**'
