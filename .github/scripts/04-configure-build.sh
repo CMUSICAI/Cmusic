@@ -17,7 +17,7 @@ elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" ]]; then
     if [[ ${OS} == "linux-disable-wallet" ]]; then
         EXTRA_OPTS="--disable-wallet"
     fi
-    CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-linux-gnu/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests CFLAGS="-O2 -g" CXXFLAGS="-O2 -g" LDFLAGS="-static-libstdc++" ${EXTRA_OPTS}
+    CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-linux-gnu/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-tests --disable-gui-tests --disable-bench --disable-gui-tests CFLAGS="-O2 -g" CXXFLAGS="-O2 -g" LDFLAGS="-static-libstdc++" ${EXTRA_OPTS}
 elif [[ ${OS} == "arm32v7" || ${OS} == "arm32v7-disable-wallet" ]]; then
     if [[ ${OS} == "arm32v7-disable-wallet" ]]; then
         EXTRA_OPTS="--disable-wallet"
