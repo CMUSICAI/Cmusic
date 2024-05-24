@@ -1,4 +1,4 @@
-name: Build CmusicAI
+name: Build CmusicAI Wallets
 
 on:
   push:
