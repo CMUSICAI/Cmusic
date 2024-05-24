@@ -88,13 +88,12 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v2
         with:
-          name: ${{ matrix.OS }}
+          name: ${{ needs.build.outputs.OS }}
           path: ./release
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release/${{ matrix.OS }}-output-file.zip
-          asset_name: ${{ matrix.OS }}-output-file.zip
-          asset_content_type: application/zip
+      - name: Upload Release Assets
+        run: |
+          for file in ./release/*; do
+            echo "Uploading $file"
+            gh release upload ${{ steps.create_release.outputs.upload_url }} "$file"
+          done
