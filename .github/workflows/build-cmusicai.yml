@@ -92,6 +92,8 @@ jobs:
           path: ./release
 
       - name: Upload Release Assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           for file in ./release/*; do
             echo "Uploading $file"
