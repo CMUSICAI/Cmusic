@@ -83,7 +83,7 @@ jobs:
               draft: false,
               prerelease: false
             });
-            return { id: release.id, upload_url: release.upload_url };
+            core.setOutput("upload_url", release.upload_url);
 
       - name: Download Artifacts
         uses: actions/download-artifact@v2
