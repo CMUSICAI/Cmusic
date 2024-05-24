@@ -17,6 +17,9 @@ elif [[ ${OS} == "osx" ]]; then
     echo "No binary checks available for ${OS}"
     echo "----------------------------------------"
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" ]]; then
+      echo "----------------------------------------"
+      echo "No binary checks available for ${OS}"
+      echo "----------------------------------------"
 #    echo "----------------------------------------"
 #    echo "Checking binary security for ${OS}"
 #    echo "----------------------------------------"
