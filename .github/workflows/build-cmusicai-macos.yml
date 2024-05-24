@@ -1,0 +1,76 @@
+name: Build CmusicAI (macOS)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build'
+        required: true
+        default: '1.0.0'
+
+env:
+  VERSION: ${{ github.event.inputs.version }}
+  DISTNAME: "cmusicai-${{ env.VERSION }}"
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout the Code
+      uses: actions/checkout@v2
+
+    - name: Install Dependencies
+      run: |
+        brew install automake berkeley-db4 libtool boost miniupnpc openssl@1.1 pkg-config protobuf python qt libevent qrencode librsvg
+
+    - name: Build Dependencies
+      run: |
+        cd ~/Cmusic/depends
+        make $MAKEOPTS HOST="x86_64-apple-darwin14"
+
+    - name: Configure and Build
+      run: |
+        cd ~/Cmusic
+        ./autogen.sh
+        CONFIG_SITE=$PWD/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests GENISOIMAGE=$PWD/depends/x86_64-apple-darwin14/native/bin/genisoimage
+        make $MAKEOPTS 
+
+    - name: Package Build
+      run: |
+        mkdir -p ~/OSX
+        export PATH=$PWD/depends/x86_64-apple-darwin14/native/bin:$PATH
+        make install-strip DESTDIR=~/OSX/$DISTNAME
+        make osx_volname
+        make deploydir
+        mkdir -p unsigned-app-$DISTNAME
+        cp osx_volname unsigned-app-$DISTNAME/
+        cp contrib/macdeploy/detached-sig-apply.sh unsigned-app-$DISTNAME
+        cp contrib/macdeploy/detached-sig-create.sh unsigned-app-$DISTNAME
+        cp $PWD/depends/x86_64-apple-darwin14/native/bin/dmg $PWD/depends/x86_64-apple-darwin14/native/bin/genisoimage unsigned-app-$DISTNAME
+        cp $PWD/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate unsigned-app-$DISTNAME/codesign_allocate
+        cp $PWD/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff unsigned-app-$DISTNAME/pagestuff
+        mv dist unsigned-app-$DISTNAME
+        cd unsigned-app-$DISTNAME
+        find . | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/sign/$DISTNAME-osx-unsigned.tar.gz
+        cd ~/Cmusic
+        make deploy
+        $PWD/depends/x86_64-apple-darwin14/native/bin/dmg dmg "CmusicAI-Core.dmg" ~/release/unsigned/$DISTNAME-osx-unsigned.dmg
+        rm -rf unsigned-app-$DISTNAME dist osx_volname dpi36.background.tiff dpi72.background.tiff
+        cd ~/OSX
+        find . -name "lib*.la" -delete
+        find . -name "lib*.a" -delete
+        rm -rf $DISTNAME/lib/pkgconfig
+        find $DISTNAME | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/release/$DISTNAME-osx64.tar.gz
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: macos-wallet
+        path: ~/release
