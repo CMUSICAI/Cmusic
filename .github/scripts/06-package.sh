@@ -63,20 +63,20 @@ if [[ ${OS} == "windows" ]]; then
     zip -r ${DISTNAME}-win64.zip ${DISTNAME}
     mv ${GITHUB_WORKSPACE}/${DISTNAME}-win64-setup-unsigned.exe ${RELEASE_LOCATION}
 
-elif [[ ${OS} == "osx" ]]; then
-    make install-strip DESTDIR=${STAGE_DIR}/${DISTNAME}
-    make osx_volname
-    make deploydir
-    mkdir -p unsigned-app-${DISTNAME}
-    cp osx_volname unsigned-app-${DISTNAME}/
-    cp contrib/macdeploy/detached-sig-apply.sh unsigned-app-${DISTNAME}
-    cp contrib/macdeploy/detached-sig-create.sh unsigned-app-${DISTNAME}
-    cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage unsigned-app-${DISTNAME}
-    mv dist unsigned-app-${DISTNAME}
-    cd unsigned-app-${DISTNAME}
-    tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c . | gzip -9n > ${RELEASE_LOCATION}/${DISTNAME}-osx-unsigned.tar.gz
-    make deploy
-    ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg dmg "CmusicAI-Core" ${RELEASE_LOCATION}/${DISTNAME}-osx-unsigned.dmg
+#elif [[ ${OS} == "osx" ]]; then
+#    make install-strip DESTDIR=${STAGE_DIR}/${DISTNAME}
+#    make osx_volname
+#    make deploydir
+#    mkdir -p unsigned-app-${DISTNAME}
+#    cp osx_volname unsigned-app-${DISTNAME}/
+#    cp contrib/macdeploy/detached-sig-apply.sh unsigned-app-${DISTNAME}
+#    cp contrib/macdeploy/detached-sig-create.sh unsigned-app-${DISTNAME}
+#    cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage unsigned-app-${DISTNAME}
+#    mv dist unsigned-app-${DISTNAME}
+#    cd unsigned-app-${DISTNAME}
+#    tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c . | gzip -9n > ${RELEASE_LOCATION}/${DISTNAME}-osx-unsigned.tar.gz
+#    make deploy
+#    ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg dmg "CmusicAI-Core" ${RELEASE_LOCATION}/${DISTNAME}-osx-unsigned.dmg
 
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" ]]; then
     make install DESTDIR=${STAGE_DIR}/${DISTNAME}
