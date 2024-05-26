@@ -70,20 +70,53 @@ jobs:
     needs: build
     runs-on: ubuntu-20.04
     steps:
-      - name: Create GitHub Release
-        id: create_release
+      - name: Check if Release Exists
+        id: check_release
         uses: actions/github-script@v4
         with:
           script: |
-            const { data: release } = await github.repos.createRelease({
+            const release = await github.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: context.payload.inputs.version,
-              name: context.payload.inputs.version,
-              draft: false,
-              prerelease: false
+              tag: context.payload.inputs.version,
+            }).catch((error) => {
+              if (error.status === 404) {
+                return null;
+              }
+              throw error;
             });
-            core.setOutput("upload_url", release.upload_url);
+            return release;
+
+      - name: Create or Update GitHub Release
+        id: create_or_update_release
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const release = steps.check_release.outputs.result;
+            let upload_url;
+            if (release) {
+              const updatedRelease = await github.repos.updateRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.data.id,
+                tag_name: context.payload.inputs.version,
+                name: context.payload.inputs.version,
+                draft: false,
+                prerelease: false
+              });
+              upload_url = updatedRelease.data.upload_url;
+            } else {
+              const { data: newRelease } = await github.repos.createRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag_name: context.payload.inputs.version,
+                name: context.payload.inputs.version,
+                draft: false,
+                prerelease: false
+              });
+              upload_url = newRelease.upload_url;
+            }
+            return { upload_url };
 
       - name: Download Artifacts
         uses: actions/download-artifact@v2
@@ -92,13 +125,8 @@ jobs:
           path: ./release
 
       - name: Upload Release Assets
-        run: |
-          for file in ./release/*; do
-            echo "Uploading $file"
-            gh release upload ${{ steps.create_release.outputs.upload_url }} "$file"
-          done
-
-      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           for file in ./release/*; do
             asset_name=$(basename "$file")
@@ -109,5 +137,5 @@ jobs:
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Content-Type: $mime_type" \
               --data-binary @"$file" \
-              "${{ steps.create_release.outputs.upload_url }}?name=$asset_name"
+              "${{ steps.create_or_update_release.outputs.upload_url }}?name=$asset_name"
           done
