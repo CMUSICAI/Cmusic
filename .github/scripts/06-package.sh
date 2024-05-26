@@ -72,7 +72,7 @@ if [[ ${OS} == "windows" ]]; then
         fi
     done
 
-    for rmfile in detach-sig-create.sh win-codesign.cert aipg-cli.exe aipg-qt.exe aipgd.exe; do
+    for rmfile in detach-sig-create.sh win-codesign.cert cmusicai-cli.exe cmusicai-qt.exe cmusicaid.exe; do
         if [[ -e ${rmfile} ]]; then
             rm -f ${rmfile}
         fi
@@ -86,8 +86,8 @@ elif [[ ${OS} == "osx" ]]; then
 
     make deploydir
 
-    if [[ -e ${WORKSPACE}/dist/Aipg-Qt.app/Contents/MacOS/install_cli.sh ]]; then
-        chmod +x ${WORKSPACE}/dist/Aipg-Qt.app/Contents/MacOS/install_cli.sh
+    if [[ -e ${WORKSPACE}/dist/CmusicAI-Qt.app/Contents/MacOS/install_cli.sh ]]; then
+        chmod +x ${WORKSPACE}/dist/CmusicAI-Qt.app/Contents/MacOS/install_cli.sh
     fi
 
     mkdir -p unsigned-app-${DISTNAME}
@@ -191,8 +191,8 @@ elif [[ ${OS} == "arm32v7" || ${OS} == "arm32v7-disable-wallet" ]]; then
             exit 1
         fi
         cd ${STAGE_DIR}
-        cp -Rf ${DISTNAME}/bin/aipgd .
-        cp -Rf ${DISTNAME}/bin/aipg-cli .
+        cp -Rf ${DISTNAME}/bin/cmusicaid .
+        cp -Rf ${DISTNAME}/bin/cmusicai-cli .
     else
         echo "release directory doesn't exist"
     fi
@@ -227,8 +227,8 @@ elif [[ ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
             exit 1
         fi
         cd ${STAGE_DIR}
-        cp -Rf ${DISTNAME}/bin/aipgd .
-        cp -Rf ${DISTNAME}/bin/aipg-cli .
+        cp -Rf ${DISTNAME}/bin/cmusicaid .
+        cp -Rf ${DISTNAME}/bin/cmusicai-cli .
     else
         echo "release directory doesn't exist"
     fi
