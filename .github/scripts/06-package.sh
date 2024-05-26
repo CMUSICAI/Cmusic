@@ -1,109 +1,50 @@
 #!/usr/bin/env bash
 
 OS=${1}
-GITHUB_WORKSPACE=${2}
+WORKSPACE=${2}
 VERSION=${3}
 
-if [[ ! ${OS} || ! ${GITHUB_WORKSPACE} || ! ${VERSION} ]]; then
+if [[ ! ${OS} || ! ${WORKSPACE} || ! ${VERSION} ]]; then
     echo "Error: Invalid options"
-    echo "Usage: ${0} <operating system> <github workspace path> <version>"
+    echo "Usage: ${0} <operating system> <workspace> <version>"
     exit 1
 fi
 
-cd ${GITHUB_WORKSPACE}
+echo "----------------------------------------"
+echo "Packaging ${OS} Build"
+echo "----------------------------------------"
 
-# Set the PATH based on the OS
+mkdir -p ${WORKSPACE}/release
+
 if [[ ${OS} == "windows" ]]; then
-    export PATH=${GITHUB_WORKSPACE}/depends/x86_64-w64-mingw32/native/bin:${PATH}
-elif [[ ${OS} == "osx" ]]; then
-    export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:${PATH}
-elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" ]]; then
-    export PATH=${GITHUB_WORKSPACE}/depends/x86_64-linux-gnu/native/bin:${PATH}
-elif [[ ${OS} == "arm32v7" || ${OS} == "arm32v7-disable-wallet" ]]; then
-    export PATH=${GITHUB_WORKSPACE}/depends/arm-linux-gnueabihf/native/bin:${PATH}
-elif [[ ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
-    export PATH=${GITHUB_WORKSPACE}/depends/aarch64-linux-gnu/native/bin:${PATH}
-else
-    echo "You must pass an OS."
-    echo "Usage: ${0} <operating system> <github workspace path> <version>"
-    exit 1
-fi
+    STRIPPROG="/usr/bin/x86_64-w64-mingw32-strip"
+    ${STRIPPROG} ./src/cmusicaid.exe
+    ${STRIPPROG} ./src/cmusicai-cli.exe
+    ${STRIPPROG} ./src/qt/cmusicai-qt.exe
+    install -c -s ./src/cmusicaid.exe ${WORKSPACE}/release
+    install -c -s ./src/cmusicai-cli.exe ${WORKSPACE}/release
+    install -c -s ./src/qt/cmusicai-qt.exe ${WORKSPACE}/release
 
-# Set up version-related variables
-SHORTHASH=$(git rev-parse --short HEAD)
-RELEASE_LOCATION="${GITHUB_WORKSPACE}/release"
-STAGE_DIR="${GITHUB_WORKSPACE}/stage"
+    # Create a zip package
+    cd ${WORKSPACE}/release
+    zip -r cmusicai-${VERSION}-win64.zip *
+    mv ${WORKSPACE}/release/cmusicai-${VERSION}-win64.zip ${WORKSPACE}/release/cmusicai-${VERSION}-win64-setup.zip
 
-if [[ ! -e ${RELEASE_LOCATION} ]]; then
-    mkdir -p ${RELEASE_LOCATION}
-fi
+elif [[ ${OS} == "linux" || ${OS} == "arm32v7" || ${OS} == "aarch64" ]]; then
+    STRIPPROG="/usr/bin/strip"
+    ${STRIPPROG} ./src/cmusicaid
+    ${STRIPPROG} ./src/cmusicai-cli
+    install -c -s ./src/cmusicaid ${WORKSPACE}/release
+    install -c -s ./src/cmusicai-cli ${WORKSPACE}/release
 
-DISTNAME="cmusicai-${VERSION}"
-
-if [[ ! -e ${STAGE_DIR} ]]; then
-    mkdir -p ${STAGE_DIR}
-fi
-
-# Build and package the project based on the OS
-if [[ ${OS} == "windows" ]]; then
-    make deploy
-    mv *-setup.exe ${DISTNAME}-win64-setup-unsigned.exe
-    make install DESTDIR=${STAGE_DIR}/${DISTNAME}
-    cd ${STAGE_DIR}
-    mv ${DISTNAME}/bin/*.dll ${DISTNAME}/lib/
-    find . -name "lib*.la" -delete
-    find . -name "lib*.a" -delete
-    rm -rf ${DISTNAME}/lib/pkgconfig
-    find ${DISTNAME}/bin -type f -executable -exec x86_64-w64-mingw32-objcopy --only-keep-debug {} {}.dbg \; -exec x86_64-w64-mingw32-strip -s {} \; -exec x86_64-w64-mingw32-objcopy --add-gnu-debuglink={}.dbg {}
-    cd ${RELEASE_LOCATION}
-    zip -r ${DISTNAME}-win64.zip ${DISTNAME}
-    mv ${GITHUB_WORKSPACE}/${DISTNAME}-win64-setup-unsigned.exe ${RELEASE_LOCATION}
-
-elif [[ ${OS} == "osx" ]]; then
-    make install-strip DESTDIR=${STAGE_DIR}/${DISTNAME}
-    make osx_volname
-    make deploydir
-    mkdir -p unsigned-app-${DISTNAME}
-    cp osx_volname unsigned-app-${DISTNAME}/
-    cp contrib/macdeploy/detached-sig-apply.sh unsigned-app-${DISTNAME}
-    cp contrib/macdeploy/detached-sig-create.sh unsigned-app-${DISTNAME}
-    cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage unsigned-app-${DISTNAME}
-    mv dist unsigned-app-${DISTNAME}
-    cd unsigned-app-${DISTNAME}
-    tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c . | gzip -9n > ${RELEASE_LOCATION}/${DISTNAME}-osx-unsigned.tar.gz
-    make deploy
-    ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg dmg "CmusicAI-Core" ${RELEASE_LOCATION}/${DISTNAME}-osx-unsigned.dmg
-
-elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" ]]; then
-    make install DESTDIR=${STAGE_DIR}/${DISTNAME}
-    cd ${STAGE_DIR}
-    find . -name "lib*.la" -delete
-    find . -name "lib*.a" -delete
-    rm -rf ${DISTNAME}/lib/pkgconfig
-    find ${DISTNAME}/bin -type f -executable -exec ${GITHUB_WORKSPACE}/contrib/devtools/split-debug.sh {} {} {}.dbg \;
-    find ${DISTNAME}/lib -type f -exec ${GITHUB_WORKSPACE}/contrib/devtools/split-debug.sh {} {} {}.dbg \;
-    tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c . | gzip -9n > ${RELEASE_LOCATION}/${DISTNAME}-x86_64-linux-gnu.tar.gz
-
-elif [[ ${OS} == "arm32v7" || ${OS} == "arm32v7-disable-wallet" ]]; then
-    make install DESTDIR=${STAGE_DIR}/${DISTNAME}
-    cd ${STAGE_DIR}
-    find . -name "lib*.la" -delete
-    find . -name "lib*.a" -delete
-    rm -rf ${DISTNAME}/lib/pkgconfig
-    find ${DISTNAME}/bin -type f -executable -exec ${GITHUB_WORKSPACE}/contrib/devtools/split-debug.sh {} {} {}.dbg \;
-    tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c . | gzip -9n > ${RELEASE_LOCATION}/${DISTNAME}-arm-linux-gnueabihf.tar.gz
-
-elif [[ ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
-    make install DESTDIR=${STAGE_DIR}/${DISTNAME}
-    cd ${STAGE_DIR}
-    find . -name "lib*.la" -delete
-    find . -name "lib*.a" -delete
-    rm -rf ${DISTNAME}/lib/pkgconfig
-    find ${DISTNAME}/bin -type f -executable -exec ${GITHUB_WORKSPACE}/contrib/devtools/split-debug.sh {} {} {}.dbg \;
-    tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c . | gzip -9n > ${RELEASE_LOCATION}/${DISTNAME}-aarch64-linux-gnu.tar.gz
+    # Create a tar package
+    cd ${WORKSPACE}/release
+    tar -czvf cmusicai-${VERSION}-${OS}.tar.gz *
+    mv ${WORKSPACE}/release/cmusicai-${VERSION}-${OS}.tar.gz ${WORKSPACE}/release/cmusicai-${VERSION}-${OS}-setup.tar.gz
 
 else
-    echo "You must pass an OS."
-    echo "Usage: ${0} <operating system> <github workspace path> <version>"
+    echo "Unsupported OS: ${OS}"
     exit 1
 fi
+
+echo "Packaging Complete"
