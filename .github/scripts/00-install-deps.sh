@@ -13,8 +13,8 @@ echo "Installing Build Packages for ${OS}"
 echo "----------------------------------------"
 
 if [[ ${OS} == "windows" ]]; then
-    apt-get update
-    apt-get install -y \
+    sudo apt-get update
+    sudo apt-get install -y \
     automake \
     autotools-dev \
     bsdmainutils \
@@ -34,7 +34,7 @@ if [[ ${OS} == "windows" ]]; then
     zip \
     bison
 
-    update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+    sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
 
 elif [[ ${OS} == "osx" ]]; then
     brew update
@@ -58,11 +58,11 @@ elif [[ ${OS} == "osx" ]]; then
 
     python3 -m venv venv
     source venv/bin/activate
-    python3 -m pip install --upgrade pip setuptools ez_setup ds-store
+    pip install --upgrade pip setuptools ez_setup ds-store
 
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
-    apt-get update
-    apt-get install -y \
+    sudo apt-get update
+    sudo apt-get install -y \
     apt-file \
     autoconf \
     automake \
@@ -92,8 +92,8 @@ elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64
     bison
 
 elif [[ ${OS} == "arm32v7" || ${OS} == "arm32v7-disable-wallet" ]]; then
-    apt-get update
-    apt-get install -y \
+    sudo apt-get update
+    sudo apt-get install -y \
     autoconf \
     automake \
     binutils-aarch64-linux-gnu \
@@ -116,11 +116,11 @@ elif [[ ${OS} == "arm32v7" || ${OS} == "arm32v7-disable-wallet" ]]; then
     python3 \
     bison
 else
-    echo "you must pass the OS to build for"
+    echo "You must pass the OS to build for"
     exit 1
 fi
 
 if [[ ${OS} != "osx" ]]; then
-    update-alternatives --install /usr/bin/python python /usr/bin/python2 1
-    update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+    sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+    sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 2
 fi
