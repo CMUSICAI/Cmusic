@@ -129,13 +129,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           for file in ./release/*; do
-            asset_name=$(basename "$file")
-            mime_type=$(file --mime-type -b "$file")
-            echo "Uploading $asset_name with MIME type $mime_type"
-            curl \
-              -X POST \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Content-Type: $mime_type" \
-              --data-binary @"$file" \
-              "${{ steps.create_or_update_release.outputs.upload_url }}?name=$asset_name"
+            if [[ -f "$file" ]]; then
+              asset_name=$(basename "$file")
+              mime_type=$(file --mime-type -b "$file")
+              echo "Uploading $asset_name with MIME type $mime_type"
+              curl \
+                -X POST \
+                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Content-Type: $mime_type" \
+                --data-binary @"$file" \
+                "${{ steps.create_or_update_release.outputs.upload_url }}?name=$asset_name"
+            fi
           done
