@@ -92,5 +92,5 @@ jobs:
         name: Upload Artifacts to Job
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.OS }}-v${{ github.event.inputs.version }}
+          name: ${{ matrix.OS }}-${{ github.event.inputs.version }}
           path: ${{ github.workspace }}/release
