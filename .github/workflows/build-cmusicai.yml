@@ -6,6 +6,9 @@ on:
       target:
         description: 'Target branch to run'
         required: true
+      version:
+        description: 'Version that will be built'
+        required: true
 
 env:
   SCRIPTS: ${{ github.workspace }}/.github/scripts
@@ -83,7 +86,7 @@ jobs:
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
         name: Package Up the Build
-        run: ${SCRIPTS}/06-package.sh ${{ matrix.OS }} ${{ github.workspace }} ${{ github.base_ref }} ${{ github.ref }}
+        run: ${SCRIPTS}/06-package.sh ${{ matrix.OS }} ${{ github.workspace }} ${{ github.event.inputs.version }}
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
         name: Upload Artifacts to Job

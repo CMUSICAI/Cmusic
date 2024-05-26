@@ -38,11 +38,7 @@ if [[ ! -e ${RELEASE_LOCATION} ]]; then
     mkdir -p ${RELEASE_LOCATION}
 fi
 
-if [[ ${GITHUB_BASE_REF} =~ "release" ]]; then
-    DISTNAME="cmusicai-${VERSION}"
-else
-    DISTNAME="cmusicai-${VERSION}-${SHORTHASH}"
-fi
+DISTNAME="cmusicai-${VERSION}"
 
 if [[ ! -e ${STAGE_DIR} ]]; then
     mkdir -p ${STAGE_DIR}
