@@ -28,7 +28,11 @@ if [[ ${OS} == "windows" ]]; then
     zip -r ${WORKSPACE}/release/cmusicai-${VERSION}-win64.zip .
 elif [[ ${OS} == "linux" || ${OS} == "aarch64" || ${OS} == "arm32v7" ]]; then
     cd ${WORKSPACE}/src
-    tar -czvf ${WORKSPACE}/release/cmusicai-${VERSION}-${OS}.tar.gz cmusicaid cmusicai-cli qt/cmusicai-qt
+    FILES="cmusicaid cmusicai-cli"
+    if [[ -f "qt/cmusicai-qt" ]]; then
+        FILES="${FILES} qt/cmusicai-qt"
+    fi
+    tar -czvf ${WORKSPACE}/release/cmusicai-${VERSION}-${OS}.tar.gz ${FILES}
 else
     echo "Unsupported OS"
     exit 1
