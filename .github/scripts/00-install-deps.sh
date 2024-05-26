@@ -56,7 +56,8 @@ elif [[ ${OS} == "osx" ]]; then
     sleuthkit \
     bison
 
-    python3 -m ensurepip
+    python3 -m venv venv
+    source venv/bin/activate
     python3 -m pip install --upgrade pip setuptools ez_setup ds-store
 
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
