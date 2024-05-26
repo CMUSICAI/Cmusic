@@ -12,22 +12,51 @@ env:
   SCRIPTS: ${{ github.workspace }}/.github/scripts
 
 jobs:
+  check-jobs:
+    runs-on: ubuntu-20.04
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'never'
+          skip_after_successful_duplicate: 'true'
+          paths_ignore: '[
+                          "binaries/**",
+                          "community/**",
+                          "contrib/**",
+                          "doc/**",
+                          "roadmap/**",
+                          "share/**",
+                          "static-builds/**",
+                          "whitepaper/**",
+                          "**/*.md"
+                          ]'
+          do_not_skip: '["workflow_dispatch", "schedule"]'
+
   build:
+    needs: check-jobs
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        OS: [ 'windows', 'linux', 'linux-disable-wallet', 'arm32v7', 'arm32v7-disable-wallet', 'aarch64', 'aarch64-disable-wallet' ]
-    steps:
-      - name: Checkout the Code
-        uses: actions/checkout@v2
+        OS: [ 'windows', 'linux', 'osx', 'arm32v7', 'aarch64' ]
 
-      - name: Set execute permissions on scripts
+    steps:
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Checkout the Code
+        uses: actions/checkout@v1
+
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Set execute permissions on scripts
         run: sudo chmod +x ${SCRIPTS}/*.sh
 
-      - name: Install Build Tools
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Install Build Tools
         run: sudo ${SCRIPTS}/00-install-deps.sh ${{ matrix.OS }}
 
-      - name: Cache dependencies
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Cache dependencies
         uses: actions/cache@v2
         with:
           path: |
@@ -36,31 +65,39 @@ jobs:
             ${{ github.workspace }}/depends/work
           key: ${{ matrix.OS }}
 
-      - name: Build dependencies
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Build dependencies
         run: ${SCRIPTS}/02-copy-build-dependencies.sh ${{ matrix.OS }} ${{ github.workspace }} ${{ github.base_ref }} ${{ github.ref }}
 
-      - name: Add Dependencies to the System PATH
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Add Dependencies to the System PATH
         run: ${SCRIPTS}/03-export-path.sh ${{ matrix.OS }} ${{ github.workspace }}
 
-      - name: Build Config
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Build Config
         run: cd ${{ github.workspace }} && ./autogen.sh
 
-      - name: Configure Build
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Configure Build
         run: ${SCRIPTS}/04-configure-build.sh ${{ matrix.OS }} ${{ github.workspace }}
 
-      - name: Build CmusicAI
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Build CmusicAI
         run: make -j2
 
-      - name: Check Binary Security
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Check Binary Security
         run: ${SCRIPTS}/05-binary-checks.sh ${{ matrix.OS }} ${{ github.workspace }}
 
-      - name: Package Up the Build
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Package Up the Build
         run: |
           VERSION=${{ github.event.inputs.version }}
           OS=${{ matrix.OS }}
           ${SCRIPTS}/06-package.sh $OS ${{ github.workspace }} $VERSION
 
-      - name: Upload Artifacts to Job
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Upload Artifacts to Job
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.OS }}
@@ -70,8 +107,8 @@ jobs:
     needs: build
     runs-on: ubuntu-20.04
     steps:
-      - name: Check if Release Exists
-        id: check_release
+      - name: Create GitHub Release
+        id: create_release
         uses: actions/github-script@v4
         with:
           script: |
@@ -81,42 +118,30 @@ jobs:
               tag: context.payload.inputs.version,
             }).catch((error) => {
               if (error.status === 404) {
-                return null;
+                const { data: newRelease } = await github.repos.createRelease({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  tag_name: context.payload.inputs.version,
+                  name: context.payload.inputs.version,
+                  draft: false,
+                  prerelease: false
+                });
+                return { upload_url: newRelease.upload_url };
               }
               throw error;
             });
-            return { release };
-
-      - name: Create or Update GitHub Release
-        id: create_or_update_release
-        uses: actions/github-script@v4
-        with:
-          script: |
-            const release = core.getInput('release');
-            let upload_url;
             if (release) {
               const updatedRelease = await github.repos.updateRelease({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                release_id: release.id,
+                release_id: release.data.id,
                 tag_name: context.payload.inputs.version,
                 name: context.payload.inputs.version,
                 draft: false,
                 prerelease: false
               });
-              upload_url = updatedRelease.upload_url;
-            } else {
-              const { data: newRelease } = await github.repos.createRelease({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                tag_name: context.payload.inputs.version,
-                name: context.payload.inputs.version,
-                draft: false,
-                prerelease: false
-              });
-              upload_url = newRelease.upload_url;
+              return { upload_url: updatedRelease.data.upload_url };
             }
-            core.setOutput("upload_url", upload_url);
 
       - name: Download Artifacts
         uses: actions/download-artifact@v2
@@ -135,9 +160,9 @@ jobs:
               echo "Uploading $asset_name with MIME type $mime_type"
               curl \
                 -X POST \
-                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Authorization: token $GITHUB_TOKEN" \
                 -H "Content-Type: $mime_type" \
                 --data-binary @"$file" \
-                "${{ steps.create_or_update_release.outputs.upload_url }}?name=$asset_name"
+                "${{ steps.create_release.outputs.upload_url }}?name=$asset_name"
             fi
           done
