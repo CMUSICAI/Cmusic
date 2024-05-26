@@ -1,14 +1,15 @@
-name: Build CmusicAI
+name: Build and Release CmusicAI
 
 on:
   workflow_dispatch:
     inputs:
-      target:
-        description: 'Target branch to run'
+      version:
+        description: 'Version to build and release'
         required: true
+        default: '1.0.0'
 
 env:
-  SCRIPTS: ${{ GITHUB.WORKSPACE }}/.github/scripts
+  SCRIPTS: ${{ github.workspace }}/.github/scripts
 
 jobs:
   check-jobs:
@@ -36,8 +37,7 @@ jobs:
 
   build:
     needs: check-jobs
-    runs-on: ubuntu-20.04
-
+    runs-on: ${{ matrix.OS == 'osx' && 'macos-latest' || 'ubuntu-20.04' }}
     strategy:
       matrix:
         OS: [ 'windows', 'linux', 'osx', 'arm32v7', 'aarch64' ]
@@ -48,46 +48,122 @@ jobs:
         uses: actions/checkout@v1
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-        name: Install Build Tools
-        run: sudo ${SCRIPTS}/00-install-deps.sh ${{ MATRIX.OS }}
+        name: Set execute permissions on scripts
+        run: sudo chmod +x ${SCRIPTS}/*.sh
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-        name: Cache dependencies.
-        uses: actions/cache@v4
+        name: Install Build Tools
+        run: |
+          if [ "${{ matrix.OS }}" == "osx" ]; then
+            brew install autoconf automake libtool pkg-config
+          else
+            sudo ${SCRIPTS}/00-install-deps.sh ${{ matrix.OS }}
+          fi
+
+      - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
+        name: Cache dependencies
+        uses: actions/cache@v2
         with:
           path: |
-            ${{ GITHUB.WORKSPACE }}/depends/built
-            ${{ GITHUB.WORKSPACE }}/depends/sources
-            ${{ GITHUB.WORKSPACE }}/depends/work
-          key: ${{ MATRIX.OS }}
+            ${{ github.workspace }}/depends/built
+            ${{ github.workspace }}/depends/sources
+            ${{ github.workspace }}/depends/work
+          key: ${{ matrix.OS }}
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-        name: Build dependencies.
-        run: ${SCRIPTS}/02-copy-build-dependencies.sh ${{ MATRIX.OS }} ${{ GITHUB.WORKSPACE }} ${{ GITHUB.BASE_REF }} ${{ GITHUB.REF }}
+        name: Build dependencies
+        run: ${SCRIPTS}/02-copy-build-dependencies.sh ${{ matrix.OS }} ${{ github.workspace }} ${{ github.base_ref }} ${{ github.ref }}
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
         name: Add Dependencies to the System PATH
-        run: ${SCRIPTS}/03-export-path.sh ${{ MATRIX.OS }} ${{ GITHUB.WORKSPACE }}
+        run: ${SCRIPTS}/03-export-path.sh ${{ matrix.OS }} ${{ github.workspace }}
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
         name: Build Config
-        run: cd ${{ GITHUB.WORKSPACE }} && ./autogen.sh
+        run: cd ${{ github.workspace }} && ./autogen.sh
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
         name: Configure Build
-        run: ${SCRIPTS}/04-configure-build.sh ${{ MATRIX.OS }} ${{ GITHUB.WORKSPACE }}
+        run: ${SCRIPTS}/04-configure-build.sh ${{ matrix.OS }} ${{ github.workspace }}
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
-        name: Build AIPG
+        name: Build CmusicAI
         run: make -j2
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
         name: Package Up the Build
-        run: ${SCRIPTS}/06-package.sh ${{ MATRIX.OS }} ${{ GITHUB.WORKSPACE }} ${{ GITHUB.BASE_REF }} ${{ GITHUB.REF }}
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          OS=${{ matrix.OS }}
+          ${SCRIPTS}/06-package.sh $OS ${{ github.workspace }} $VERSION
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
         name: Upload Artifacts to Job
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v2
         with:
-          name: ${{ MATRIX.OS }}
-          path: ${{ GITHUB.WORKSPACE }}/release
+          name: ${{ matrix.OS }}
+          path: ${{ github.workspace }}/release
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const release = await github.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: context.payload.inputs.version,
+            }).catch(async (error) => {
+              if (error.status === 404) {
+                const { data: newRelease } = await github.repos.createRelease({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  tag_name: context.payload.inputs.version,
+                  name: context.payload.inputs.version,
+                  draft: false,
+                  prerelease: false
+                });
+                return { upload_url: newRelease.upload_url };
+              }
+              throw error;
+            });
+            if (release) {
+              const updatedRelease = await github.repos.updateRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.data.id,
+                tag_name: context.payload.inputs.version,
+                name: context.payload.inputs.version,
+                draft: false,
+                prerelease: false
+              });
+              return { upload_url: updatedRelease.data.upload_url };
+            }
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.OS }}
+          path: ./release
+
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for file in ./release/*; do
+            if [[ -f "$file" ]]; then
+              asset_name=$(basename "$file")
+              mime_type=$(file --mime-type -b "$file")
+              echo "Uploading $asset_name with MIME type $mime_type"
+              curl \
+                -X POST \
+                -H "Authorization: token $GITHUB_TOKEN" \
+                -H "Content-Type: $mime_type" \
+                --data-binary @"$file" \
+                "${{ steps.create_release.outputs.upload_url }}?name=$asset_name"
+            fi
+          done
