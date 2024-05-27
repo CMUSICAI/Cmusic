@@ -24,9 +24,7 @@ if [[ ${OS} == "windows" ]]; then
     mv ${WORKSPACE}/src/cmusicaid.exe ${WORKSPACE}/release
     mv ${WORKSPACE}/src/cmusicai-cli.exe ${WORKSPACE}/release
     mv ${WORKSPACE}/src/qt/cmusicai-qt.exe ${WORKSPACE}/release
-    cd ${WORKSPACE}/release
-    zip -r ${WORKSPACE}/release/cmusicai-${VERSION}-win64.zip .
-elif [[ ${OS} == "linux" || ${OS} == "aarch64" || ${OS} == "arm32v7" ]]; then
+elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" || ${OS} == "arm32v7" || ${OS} == "arm32v7-disable-wallet" ]]; then
     cd ${WORKSPACE}/src
     FILES="cmusicaid cmusicai-cli"
     if [[ -f "qt/cmusicai-qt" ]]; then
