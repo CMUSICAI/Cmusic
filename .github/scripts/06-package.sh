@@ -28,7 +28,7 @@ else
     cd ${WORKSPACE}/src
     FILES="cmusicaid cmusicai-cli"
     # Include the Qt wallet only if the OS version does not imply wallet is disabled
-    if [[ ! ${OS} =~ "disable-wallet" ]]; then
+    if [[ ! ${OS} =~ "disable-wallet" ]] && [[ -f "qt/cmusicai-qt" ]]; then
         FILES="${FILES} qt/cmusicai-qt"
     fi
     tar -czvf ${WORKSPACE}/release/cmusicai-${VERSION}-${OS}.tar.gz ${FILES}
