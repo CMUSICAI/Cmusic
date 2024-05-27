@@ -12,9 +12,8 @@ echo "----------------------------------------"
 echo "Installing Build Packages for ${OS}"
 echo "----------------------------------------"
 
-apt-get update
-
 if [[ ${OS} == "windows" ]]; then
+    apt-get update
     apt-get install -y \
     automake \
     autotools-dev \
@@ -35,8 +34,7 @@ if [[ ${OS} == "windows" ]]; then
     zip \
     bison
 
-    update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix 
-
+    update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
 
 elif [[ ${OS} == "osx" ]]; then
     apt -y install \
@@ -69,9 +67,10 @@ elif [[ ${OS} == "osx" ]]; then
     python3-pip
 
     pip3 install ds-store
-    
+
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
-    apt -y install \
+    apt-get update
+    apt-get install -y \
     apt-file \
     autoconf \
     automake \
@@ -100,10 +99,9 @@ elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64
     zip \
     bison
 
-
-
 elif [[ ${OS} == "arm32v7" || ${OS} == "arm32v7-disable-wallet" ]]; then
-    apt -y install \
+    apt-get update
+    apt-get install -y \
     autoconf \
     automake \
     binutils-aarch64-linux-gnu \
@@ -129,5 +127,8 @@ else
     echo "you must pass the OS to build for"
     exit 1
 fi
+
+if [[ ${OS} != "osx" ]]; then
     update-alternatives --install /usr/bin/python python /usr/bin/python2 1
     update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+fi
