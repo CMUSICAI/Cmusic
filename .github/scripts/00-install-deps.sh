@@ -37,28 +37,36 @@ if [[ ${OS} == "windows" ]]; then
     update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
 
 elif [[ ${OS} == "osx" ]]; then
-    brew update
-    brew install \
+    apt -y install \
     autoconf \
     automake \
     awscli \
+    bsdmainutils \
+    ca-certificates \
     cmake \
     curl \
-    fonttools \
+    fonts-tuffy \
     g++ \
     git \
     imagemagick \
+    libbz2-dev \
+    libcap-dev \
+    librsvg2-bin \
+    libtiff-tools \
     libtool \
+    libz-dev \
+    p7zip-full \
     pkg-config \
-    python@3.9 \
-    libtiff \
-    p7zip \
+    python3 \
+    python3-dev \
+    python3-setuptools \
+    s3curl \
     sleuthkit \
-    bison
+    bison \
+    libtinfo5 \
+    python3-pip
 
-    python3 -m venv venv
-    source venv/bin/activate
-    python3 -m pip install --upgrade pip setuptools ez_setup ds-store
+    pip3 install ds-store
 
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
     apt-get update
