@@ -24,14 +24,12 @@ if [[ ${OS} == "windows" ]]; then
     mv ${WORKSPACE}/src/cmusicaid.exe ${WORKSPACE}/release
     mv ${WORKSPACE}/src/cmusicai-cli.exe ${WORKSPACE}/release
     mv ${WORKSPACE}/src/qt/cmusicai-qt.exe ${WORKSPACE}/release
-elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" || ${OS} == "arm32v7" || ${OS} == "arm32v7-disable-wallet" ]]; then
+else
     cd ${WORKSPACE}/src
     FILES="cmusicaid cmusicai-cli"
-    if [[ -f "qt/cmusicai-qt" ]]; then
+    # Include the Qt wallet only if the OS version does not imply wallet is disabled
+    if [[ ! ${OS} =~ "disable-wallet" ]]; then
         FILES="${FILES} qt/cmusicai-qt"
     fi
     tar -czvf ${WORKSPACE}/release/cmusicai-${VERSION}-${OS}.tar.gz ${FILES}
-else
-    echo "Unsupported OS"
-    exit 1
 fi
