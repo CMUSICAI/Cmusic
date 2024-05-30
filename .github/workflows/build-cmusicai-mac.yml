@@ -1,4 +1,4 @@
-name: Build CmusicAI for macOS
+name: Build and Package CmusicAI for macOS
 
 on:
   workflow_dispatch:
@@ -57,9 +57,6 @@ jobs:
           export BDB_CFLAGS="-I${BDB_PREFIX}/include"
           export BOOST_ROOT=/usr/include/boost
           export BOOST_LIB_PATH=/usr/lib/x86_64-linux-gnu
-          echo "BDB_PREFIX=${BDB_PREFIX}"
-          echo "BDB_LIBS=${BDB_LIBS}"
-          echo "BDB_CFLAGS=${BDB_CFLAGS}"
           CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
           ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}"
 
@@ -67,13 +64,40 @@ jobs:
         run: |
           make -j$(nproc)
 
-      - name: Package
+      - name: Install and Package
         run: |
           mkdir -p release
-          tar -czvf release/cmusicai-${{ github.sha }}-macos.tar.gz src/cmusicaid src/cmusicai-cli || :
-          if [ -f src/qt/cmusicai-qt ]; then
-            tar -czvf release/cmusicai-${{ github.sha }}-macos-qt.tar.gz src/qt/cmusicai-qt
-          fi
+          make install-strip DESTDIR=${GITHUB_WORKSPACE}/release
+          make osx_volname
+          make deploydir
+
+          cd ${GITHUB_WORKSPACE}/release
+          tar -czvf cmusicai-${{ github.sha }}-macos.tar.gz *
+
+          mkdir unsigned-app-cmusicai
+          cp ${GITHUB_WORKSPACE}/osx_volname unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/contrib/macdeploy/detached-sig-apply.sh unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/contrib/macdeploy/detached-sig-create.sh unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate unsigned-app-cmusicai/codesign_allocate
+          cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff unsigned-app-cmusicai/pagestuff
+          mv dist unsigned-app-cmusicai
+
+          cd unsigned-app-cmusicai
+          find . | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ${GITHUB_WORKSPACE}/release/cmusicai-${{ github.sha }}-osx-unsigned.tar.gz
+
+          cd ${GITHUB_WORKSPACE}
+          make deploy
+          ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg dmg "CmusicAI-Core.dmg" ${GITHUB_WORKSPACE}/release/cmusicai-${{ github.sha }}-osx-unsigned.dmg
+
+          cd ${GITHUB_WORKSPACE}/release
+          for i in cmusicai-${{ github.sha }}-macos.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.dmg; do
+              if [[ -e ${i} ]]; then
+                  md5sum ${i} >> ${i}.md5sum
+                  sha256sum ${i} >> ${i}.sha256sum
+              fi
+          done
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v2
