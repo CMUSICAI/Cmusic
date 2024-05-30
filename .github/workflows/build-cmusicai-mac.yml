@@ -22,7 +22,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y clang cmake autoconf automake libtool curl make gawk \
-                                  libboost-all-dev libminiupnpc-dev qtbase5-dev qttools5-dev-tools
+                                  libboost-all-dev libminiupnpc-dev qtbase5-dev qttools5-dev-tools qtdeclarative5-dev
 
       - name: Install SDKs and Toolchain
         run: |
@@ -57,11 +57,8 @@ jobs:
           export BDB_CFLAGS="-I${BDB_PREFIX}/include"
           export BOOST_ROOT=/usr/include/boost
           export BOOST_LIB_PATH=/usr/lib/x86_64-linux-gnu
-          echo "BDB_PREFIX=${BDB_PREFIX}"
-          echo "BDB_LIBS=${BDB_LIBS}"
-          echo "BDB_CFLAGS=${BDB_CFLAGS}"
           CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
-          ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}" --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH}
+          ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --enable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}"
 
       - name: Build
         run: |
@@ -70,7 +67,10 @@ jobs:
       - name: Package
         run: |
           mkdir -p release
-          tar -czvf release/cmusicai-${{ github.sha }}-macos.tar.gz src/cmusicaid src/cmusicai-cli src/qt/cmusicai-qt
+          tar -czvf release/cmusicai-${{ github.sha }}-macos.tar.gz src/cmusicaid src/cmusicai-cli || :
+          if [ -f src/qt/cmusicai-qt ]; then
+            tar -czvf release/cmusicai-${{ github.sha }}-macos-qt.tar.gz src/qt/cmusicai-qt
+          fi
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v2
