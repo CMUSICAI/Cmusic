@@ -29,6 +29,14 @@ jobs:
                   chmod +x contrib/install_db4.sh
                   ./contrib/install_db4.sh $(pwd)
 
+            - name: Generate background.tiff files
+              run: |
+                  sed 's/PACKAGE_NAME/CmusicAI Core/' < "contrib/macdeploy/background.svg" > background.temp.svg
+                  rsvg-convert -f png -d 36 -p 36 background.temp.svg -o dpi36.background.png
+                  convert dpi36.background.png dpi36.background.tiff
+                  rsvg-convert -f png -d 72 -p 72 background.temp.svg -o dpi72.background.png
+                  convert dpi72.background.png dpi72.background.tiff
+
             - name: Export Paths
               run: |
                   export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH
@@ -52,12 +60,6 @@ jobs:
                   export BOOST_LIB_PATH=/usr/lib/x86_64-linux-gnu
                   CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
                   ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}"
-
-            - name: Generate background.tiff
-              run: |
-                  sed 's/PACKAGE_NAME/CmusicAI Core/' < "contrib/macdeploy/background.svg" > background.temp.svg
-                  rsvg-convert -f png -d 36 -p 36 background.temp.svg -o background.png
-                  convert background.png dpi36.background.tiff
 
             - name: Build CmusicAI
               run: |
