@@ -32,9 +32,9 @@ if [[ ${OS} == "osx" ]]; then
         echo "Error installing Berkeley DB"
         exit 1
     fi
-    echo "Berkeley DB installed at $PWD/../.."
-    ls -l $PWD/../../include
-    ls -l $PWD/../../lib
+    echo "Berkeley DB installed at $(dirname $PWD)"
+    ls -l $(dirname $PWD)/include
+    ls -l $(dirname $PWD)/lib
 else
     echo "Skipping Berkeley DB installation for ${OS}"
 fi
