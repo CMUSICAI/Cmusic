@@ -114,3 +114,12 @@ jobs:
               with:
                   name: config-log
                   path: /home/runner/work/Cmusic/Cmusic/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log
+
+            - name: Create macOS app bundle
+              run: |
+                  mkdir -p CmusicAI-Qt.app/Contents/MacOS
+                  STRIPPROG="/usr/bin/strip" /bin/bash /home/runner/work/Cmusic/Cmusic/build-aux/install-sh -c -s src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
+                  STRIPPROG="/usr/bin/strip" /bin/bash /home/runner/work/Cmusic/Cmusic/build-aux/install-sh -c -s src/cmusicaid CmusicAI-Qt.app/Contents/MacOS/cmusicaid
+                  STRIPPROG="/usr/bin/strip" /bin/bash /home/runner/work/Cmusic/Cmusic/build-aux/install-sh -c -s src/cmusicai-cli CmusicAI-Qt.app/Contents/MacOS/cmusicai-cli
+                  mkdir -p CmusicAI-Qt.app/Contents/Resources/Base.lproj
+                  echo '{ CFBundleDisplayName = "CmusicAI Core"; CFBundleName = "CmusicAI Core"; }' > CmusicAI-Qt.app/Contents/Resources/Base.lproj/InfoPlist.strings
