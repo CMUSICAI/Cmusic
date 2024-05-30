@@ -51,7 +51,11 @@ jobs:
         run: |
           set -x
           cd ${GITHUB_WORKSPACE}
-          CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage
+          export BDB_PREFIX=${GITHUB_WORKSPACE}/depends/SDKs/db-4.8.30.NC
+          CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
+          CPPFLAGS="-I${BDB_PREFIX}/include" \
+          LDFLAGS="-L${BDB_PREFIX}/lib" \
+          ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage
 
       - name: Build
         run: |
