@@ -73,7 +73,8 @@ jobs:
           echo CmusicAI-Core >osx_volname
           
           # Corrected image processing command
-          sed 's/PACKAGE_NAME/CmusicAI Core/' < "contrib/macdeploy/background.svg" | inkscape --pipe --export-png=dpi36.background.tiff --export-dpi=36
+          sed 's/PACKAGE_NAME/CmusicAI Core/' < "contrib/macdeploy/background.svg" > corrected-background.svg
+          inkscape corrected-background.svg --export-filename=dpi36.background.tiff --export-dpi=36
           
           make deploydir
 
