@@ -34,9 +34,18 @@ jobs:
         run: |
           export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH
 
+      - name: Prepare Build Environment
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          if [ ! -f ./configure ]; then
+            echo "Generating configure script"
+            ./autogen.sh
+          fi
+
       - name: Configure Build
         run: |
           set -x
+          cd ${GITHUB_WORKSPACE}
           CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage
 
       - name: Build
