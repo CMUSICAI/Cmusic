@@ -55,7 +55,9 @@ jobs:
 
             - name: Generate background.tiff
               run: |
-                  sed 's/PACKAGE_NAME/CmusicAI Core/' < "contrib/macdeploy/background.svg" | rsvg-convert -f png -d 72 -p 72 | convert - dpi72.background.tiff
+                  sed 's/PACKAGE_NAME/CmusicAI Core/' < "contrib/macdeploy/background.svg" > background.temp.svg
+                  rsvg-convert -f png -d 36 -p 36 background.temp.svg -o background.png
+                  convert background.png dpi36.background.tiff
 
             - name: Build CmusicAI
               run: |
