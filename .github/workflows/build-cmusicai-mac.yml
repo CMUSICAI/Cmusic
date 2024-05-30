@@ -22,7 +22,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ca-certificates curl g++ git pkg-config autoconf librsvg2-bin libtiff-tools libtool automake bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python python-dev python-setuptools fonts-tuffy \
-                                  clang qtbase5-dev qttools5-dev-tools qtdeclarative5-dev libboost-all-dev libminiupnpc-dev protobuf-compiler libprotobuf-dev
+                                  clang qtbase5-dev qttools5-dev-tools qtdeclarative5-dev libboost-all-dev libminiupnpc-dev protobuf-compiler libprotobuf-dev inkscape
 
       - name: Install SDKs and Toolchain
         run: |
@@ -68,7 +68,13 @@ jobs:
         run: |
           mkdir -p release
           make install-strip DESTDIR=${GITHUB_WORKSPACE}/release
-          make osx_volname
+          
+          # Corrected osx_volname
+          echo CmusicAI-Core >osx_volname
+          
+          # Corrected image processing command
+          sed 's/PACKAGE_NAME/CmusicAI Core/' < "contrib/macdeploy/background.svg" | inkscape --pipe --export-png=dpi36.background.tiff --export-dpi=36
+          
           make deploydir
 
           cd ${GITHUB_WORKSPACE}/release
