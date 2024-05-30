@@ -69,13 +69,8 @@ jobs:
           mkdir -p release
           make install-strip DESTDIR=${GITHUB_WORKSPACE}/release
           
-          # Corrected osx_volname
           echo CmusicAI-Core >osx_volname
-          
-          # Corrected image processing command using sed and Inkscape
-          sed 's/PACKAGE_NAME/CmusicAI Core/' < "contrib/macdeploy/background.svg" > corrected-background.svg
-          inkscape corrected-background.svg --export-filename=dpi36.background.tiff --export-dpi=36 --batch-process --export-type=tiff
-          
+                    
           make deploydir
 
           cd ${GITHUB_WORKSPACE}/release
