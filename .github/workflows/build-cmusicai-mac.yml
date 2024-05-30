@@ -2,13 +2,6 @@ name: Build and Package CmusicAI for macOS
 
 on:
     workflow_dispatch:
-        inputs:
-            target:
-                description: 'Target branch to run'
-                required: true
-            version:
-                description: 'Version that will be built'
-                required: true
 
 jobs:
     build:
