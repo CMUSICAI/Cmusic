@@ -65,6 +65,10 @@ jobs:
               run: |
                   make -j$(nproc)
 
+            - name: Ensure Permissions
+              run: |
+                  chmod -R 755 ${GITHUB_WORKSPACE}
+
             - name: Install and Package
               run: |
                   make install-strip DESTDIR=${GITHUB_WORKSPACE}/release
@@ -117,7 +121,6 @@ jobs:
                   cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
                   cp src/cmusicaid CmusicAI-Qt.app/Contents/MacOS/cmusicaid
                   cp src/cmusicai-cli CmusicAI-Qt.app/Contents/MacOS/cmusicai-cli
+                  cp contrib/install_cli.sh CmusicAI-Qt.app/Contents/MacOS/install_cli.sh
                   mkdir -p CmusicAI-Qt.app/Contents/Resources/Base.lproj
-                  cp src/qt/res/icons/cmusicai.icns CmusicAI-Qt.app/Contents/Resources/cmusicai.icns
-                  cp share/qt/Info.plist CmusicAI-Qt.app/Contents/Info.plist
                   echo '{ CFBundleDisplayName = "CmusicAI Core"; CFBundleName = "CmusicAI Core"; }' > CmusicAI-Qt.app/Contents/Resources/Base.lproj/InfoPlist.strings
