@@ -67,20 +67,16 @@ jobs:
 
             - name: Install and Package
               run: |
-                  mkdir -p release
                   make install-strip DESTDIR=${GITHUB_WORKSPACE}/release
                   
-                  echo CmusicAI-Core >osx_volname
+                  make osx_volname
                   
                   make deploydir
                   
-                  cd ${GITHUB_WORKSPACE}/release
-                  tar -czvf cmusicai-${{ github.sha }}-macos.tar.gz *
-                  
-                  mkdir unsigned-app-cmusicai
-                  cp ${GITHUB_WORKSPACE}/osx_volname unsigned-app-cmusicai/
-                  cp ${GITHUB_WORKSPACE}/contrib/macdeploy/detached-sig-apply.sh unsigned-app-cmusicai/
-                  cp ${GITHUB_WORKSPACE}/contrib/macdeploy/detached-sig-create.sh unsigned-app-cmusicai/
+                  mkdir -p unsigned-app-cmusicai
+                  cp osx_volname unsigned-app-cmusicai/
+                  cp contrib/macdeploy/detached-sig-apply.sh unsigned-app-cmusicai/
+                  cp contrib/macdeploy/detached-sig-create.sh unsigned-app-cmusicai/
                   cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg unsigned-app-cmusicai/
                   cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage unsigned-app-cmusicai/
                   cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate unsigned-app-cmusicai/codesign_allocate
