@@ -114,8 +114,10 @@ jobs:
             - name: Create macOS app bundle
               run: |
                   mkdir -p CmusicAI-Qt.app/Contents/MacOS
-                  STRIPPROG="/usr/bin/strip" /bin/bash /home/runner/work/Cmusic/Cmusic/build-aux/install-sh -c -s src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
-                  STRIPPROG="/usr/bin/strip" /bin/bash /home/runner/work/Cmusic/Cmusic/build-aux/install-sh -c -s src/cmusicaid CmusicAI-Qt.app/Contents/MacOS/cmusicaid
-                  STRIPPROG="/usr/bin/strip" /bin/bash /home/runner/work/Cmusic/Cmusic/build-aux/install-sh -c -s src/cmusicai-cli CmusicAI-Qt.app/Contents/MacOS/cmusicai-cli
+                  cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
+                  cp src/cmusicaid CmusicAI-Qt.app/Contents/MacOS/cmusicaid
+                  cp src/cmusicai-cli CmusicAI-Qt.app/Contents/MacOS/cmusicai-cli
                   mkdir -p CmusicAI-Qt.app/Contents/Resources/Base.lproj
+                  cp src/qt/res/icons/cmusicai.icns CmusicAI-Qt.app/Contents/Resources/cmusicai.icns
+                  cp share/qt/Info.plist CmusicAI-Qt.app/Contents/Info.plist
                   echo '{ CFBundleDisplayName = "CmusicAI Core"; CFBundleName = "CmusicAI Core"; }' > CmusicAI-Qt.app/Contents/Resources/Base.lproj/InfoPlist.strings
