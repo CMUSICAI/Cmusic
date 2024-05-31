@@ -112,7 +112,7 @@ $(OSX_APP)/Contents/MacOS/cmusicaid: $(CMUSICAID_BIN)
 
 $(OSX_APP)/Contents/MacOS/cmusicai-cli: $(cmusicai_cli_BIN)
 	$(MKDIR_P) $(@D)
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $< $@
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) src/cmusicai-cli $@
 
 $(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings:
 	$(MKDIR_P) $(@D)
