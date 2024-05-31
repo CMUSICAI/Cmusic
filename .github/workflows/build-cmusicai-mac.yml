@@ -92,7 +92,7 @@ jobs:
                   
                   cd ${GITHUB_WORKSPACE}/release
                   for i in cmusicai-${{ github.sha }}-macos.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.dmg; do
-                      if [[ -e ${i} ]]; then
+                      if [ -e ${i} ]; then
                           md5sum ${i} >> ${i}.md5sum
                           sha256sum ${i} >> ${i}.sha256sum
                       fi
