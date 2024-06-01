@@ -118,9 +118,4 @@ jobs:
             - name: Create macOS app bundle
               run: |
                   mkdir -p CmusicAI-Qt.app/Contents/MacOS
-                  cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
-                  cp src/cmusicaid CmusicAI-Qt.app/Contents/MacOS/cmusicaid
-                  cp src/cmusicai-cli CmusicAI-Qt.app/Contents/MacOS/cmusicai-cli
-                  cp contrib/install_cli.sh CmusicAI-Qt.app/Contents/MacOS/install_cli.sh
-                  mkdir -p CmusicAI-Qt.app/Contents/Resources/Base.lproj
-                  echo '{ CFBundleDisplayName = "CmusicAI Core"; CFBundleName = "CmusicAI Core"; }' > CmusicAI-Qt.app/Contents/Resources/Base.lproj/InfoPlist.strings
+                  cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/M
