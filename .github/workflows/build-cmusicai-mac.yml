@@ -117,6 +117,11 @@ jobs:
                   chmod +x ${GITHUB_WORKSPACE}/contrib/macdeploy/macdeployqtplus
                   chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/otool
 
+            - name: Debugging Information
+              run: |
+                  echo "Listing contents of CmusicAI-Qt.app:"
+                  find CmusicAI-Qt.app
+
             - name: Deploy Application
               run: |
                   INSTALLNAMETOOL=/usr/bin/install_name_tool \
