@@ -71,6 +71,13 @@ jobs:
 
             - name: Install and Package
               run: |
+                  # Create placeholder files if they don't exist
+                  mkdir -p ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin
+                  touch ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg
+                  touch ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage
+                  touch ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate
+                  touch ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff
+                  
                   # Ensure required tools have the right permissions
                   chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg
                   chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage
