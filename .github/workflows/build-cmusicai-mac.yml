@@ -125,4 +125,6 @@ jobs:
                   export OTOOL=/usr/bin/otool
                   export INSTALLNAMETOOL=/usr/bin/install_name_tool
                   export STRIP=/usr/bin/strip
+                  echo "Checking if otool is accessible and executable"
+                  ls -l /usr/bin/otool
                   /usr/bin/python3 ./contrib/macdeploy/macdeployqtplus CmusicAI-Qt.app -translations-dir= -add-qt-tr da,de,es,hu,ru,uk,zh_CN,zh_TW -verbose 2
