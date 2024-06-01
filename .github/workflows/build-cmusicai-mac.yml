@@ -102,42 +102,6 @@ jobs:
                       fi
                   done
 
-            - name: Debugging Information
-              run: |
-                  echo "Listing contents of release directory:"
-                  ls -l ${GITHUB_WORKSPACE}/release
-
-                  echo "Listing contents of unsigned-app-cmusicai directory:"
-                  ls -l ${GITHUB_WORKSPACE}/unsigned-app-cmusicai
-
-                  echo "Listing contents of dist directory:"
-                  ls -l ${GITHUB_WORKSPACE}/unsigned-app-cmusicai/dist
-
-                  echo "Listing contents of CmusicAI-Qt.app/Contents/MacOS directory:"
-                  ls -l ${GITHUB_WORKSPACE}/CmusicAI-Qt.app/Contents/MacOS
-
-            - name: Create macOS app bundle
-              run: |
-                  mkdir -p CmusicAI-Qt.app/Contents/MacOS
-                  cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
-                  cp src/cmusicaid CmusicAI-Qt.app/Contents/MacOS/cmusicaid
-                  cp src/cmusicai-cli CmusicAI-Qt.app/Contents/MacOS/cmusicai-cli
-                  cp contrib/install_cli.sh CmusicAI-Qt.app/Contents/MacOS/install_cli.sh
-                  mkdir -p CmusicAI-Qt.app/Contents/Resources/Base.lproj
-                  echo '{ CFBundleDisplayName = "CmusicAI Core"; CFBundleName = "CmusicAI Core"; }' > CmusicAI-Qt.app/Contents/Resources/Base.lproj/InfoPlist.strings
-
-            - name: Fix macdeployqtplus Permissions
-              run: |
-                  chmod +x ${GITHUB_WORKSPACE}/contrib/macdeploy/macdeployqtplus
-                  chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/otool
-
-            - name: Deploy Application
-              run: |
-                  INSTALLNAMETOOL=/usr/bin/install_name_tool \
-                  OTOOL=/usr/bin/otool \
-                  STRIP=/usr/bin/strip \
-                  ${GITHUB_WORKSPACE}/contrib/macdeploy/macdeployqtplus CmusicAI-Qt.app -translations-dir= -add-qt-tr da,de,es,hu,ru,uk,zh_CN,zh_TW -verbose 2
-
             - name: Upload Build Artifacts
               uses: actions/upload-artifact@v2
               with:
@@ -150,3 +114,8 @@ jobs:
               with:
                   name: config-log
                   path: /home/runner/work/Cmusic/Cmusic/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log
+
+            - name: Create macOS app bundle
+              run: |
+                  mkdir -p CmusicAI-Qt.app/Contents/MacOS
+                  cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt

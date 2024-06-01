@@ -19,11 +19,11 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libcmusicaiconsensus.pc
 endif
 
-CMUSICAID_BIN=$(top_builddir)/src/$(CMUSICAI_DAEMON_NAME)$(EXEEXT)
-CMUSICAI_QT_BIN=$(top_builddir)/src/qt/$(CMUSICAI_GUI_NAME)$(EXEEXT)
-cmusicai_cli_BIN=$(top_builddir)/src/$(cmusicai_cli_NAME)$(EXEEXT)
+CMUSICAID_BIN=$(top_builddir)/src/cmusicaid$(EXEEXT)
+CMUSICAI_QT_BIN=$(top_builddir)/src/qt/cmusicai-qt$(EXEEXT)
+CMUSICAI_CLI_BIN=$(top_builddir)/src/cmusicai-cli$(EXEEXT)
 CMUSICAI_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
-cmusicai_cli_INSTALL=$(top_builddir)/contrib/install_cli.sh
+CMUSICAI_CLI_INSTALL=$(top_builddir)/contrib/install_cli.sh
 
 empty :=
 space := $(empty) $(empty)
@@ -77,7 +77,7 @@ $(CMUSICAI_WIN_INSTALLER): all-recursive
 	$(MKDIR_P) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(CMUSICAID_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(CMUSICAI_QT_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(cmusicai_cli_BIN) $(top_builddir)/release
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(CMUSICAI_CLI_BIN) $(top_builddir)/release
 	@test -f $(MAKENSIS) && $(MAKENSIS) -V2 $(top_builddir)/share/setup.nsi || \
 	  echo error: could not build $@
 	@echo built $@
@@ -88,7 +88,7 @@ $(OSX_APP)/Contents/PkgInfo:
 
 $(OSX_APP)/Contents/Resources/empty.lproj:
 	$(MKDIR_P) $(@D)
-	@touch $@ 
+	@touch $@
 
 $(OSX_APP)/Contents/Info.plist: $(OSX_PLIST)
 	$(MKDIR_P) $(@D)
@@ -98,7 +98,7 @@ $(OSX_APP)/Contents/Resources/cmusicai.icns: $(OSX_INSTALLER_ICONS)
 	$(MKDIR_P) $(@D)
 	$(INSTALL_DATA) $< $@
 
-$(OSX_APP)/Contents/MacOS/install_cli.sh: $(cmusicai_cli_INSTALL)
+$(OSX_APP)/Contents/MacOS/install_cli.sh: $(CMUSICAI_CLI_INSTALL)
 	$(MKDIR_P) $(@D)
 	$(INSTALL_DATA) $< $@
 
@@ -110,7 +110,7 @@ $(OSX_APP)/Contents/MacOS/cmusicaid: $(CMUSICAID_BIN)
 	$(MKDIR_P) $(@D)
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $< $@
 
-$(OSX_APP)/Contents/MacOS/cmusicai-cli: $(cmusicai_cli_BIN)
+$(OSX_APP)/Contents/MacOS/cmusicai-cli: $(CMUSICAI_CLI_BIN)
 	$(MKDIR_P) $(@D)
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $< $@
 
@@ -181,7 +181,7 @@ $(CMUSICAI_QT_BIN): FORCE
 $(CMUSICAID_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
-$(cmusicai_cli_BIN): FORCE
+$(CMUSICAI_CLI_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 if USE_LCOV
