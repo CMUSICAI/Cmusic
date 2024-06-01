@@ -121,4 +121,7 @@ jobs:
                   cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
                   chmod +x /usr/bin/otool
                   export OTOOL=/usr/bin/otool
+                  INSTALLNAMETOOL=/usr/bin/install_name_tool \
+                  OTOOL=/usr/bin/otool \
+                  STRIP=/usr/bin/strip \
                   /usr/bin/python3 ./contrib/macdeploy/macdeployqtplus CmusicAI-Qt.app -translations-dir= -add-qt-tr da,de,es,hu,ru,uk,zh_CN,zh_TW -verbose 2
