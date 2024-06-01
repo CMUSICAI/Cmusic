@@ -102,6 +102,20 @@ jobs:
                       fi
                   done
 
+            - name: Debugging Information
+              run: |
+                  echo "Listing contents of release directory:"
+                  ls -l ${GITHUB_WORKSPACE}/release
+
+                  echo "Listing contents of unsigned-app-cmusicai directory:"
+                  ls -l ${GITHUB_WORKSPACE}/unsigned-app-cmusicai
+
+                  echo "Listing contents of dist directory:"
+                  ls -l ${GITHUB_WORKSPACE}/unsigned-app-cmusicai/dist
+
+                  echo "Listing contents of CmusicAI-Qt.app/Contents/MacOS directory:"
+                  ls -l ${GITHUB_WORKSPACE}/CmusicAI-Qt.app/Contents/MacOS
+
             - name: Create macOS app bundle
               run: |
                   mkdir -p CmusicAI-Qt.app/Contents/MacOS
@@ -116,11 +130,6 @@ jobs:
               run: |
                   chmod +x ${GITHUB_WORKSPACE}/contrib/macdeploy/macdeployqtplus
                   chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/otool
-
-            - name: Debugging Information
-              run: |
-                  echo "Listing contents of CmusicAI-Qt.app:"
-                  find CmusicAI-Qt.app
 
             - name: Deploy Application
               run: |
