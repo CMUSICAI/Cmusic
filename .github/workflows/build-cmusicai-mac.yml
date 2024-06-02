@@ -116,65 +116,8 @@ jobs:
           # Ensure required tools have the right permissions
           chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg
           chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/genisoimage
-          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate
-          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff
-          
-          make install-strip DESTDIR=${GITHUB_WORKSPACE}/release
-          
-          make osx_volname
-          
-          make deploydir
-          
-          mkdir -p unsigned-app-cmusicai
-          cp osx_volname unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/build_artifacts/contrib/macdeploy/detached-sig-apply.sh unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/build_artifacts/contrib/macdeploy/detached-sig-create.sh unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/genisoimage unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate unsigned-app-cmusicai/codesign_allocate
-          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff unsigned-app-cmusicai/pagestuff
-          mv dist unsigned-app-cmusicai
-          
-          # Debugging statements
-          echo "Contents of native/bin:"
-          ls -l ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin
-          
-          echo "Checking otool path:"
-          which otool || echo "otool not found"
-          
-          cd unsigned-app-cmusicai
-          find . | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ${GITHUB_WORKSPACE}/release/cmusicai-${{ github.sha }}-osx-unsigned.tar.gz
-          
-          cd ${GITHUB_WORKSPACE}
-          make deploy
-          ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg dmg "CmusicAI-Core.dmg" ${GITHUB_WORKSPACE}/release/cmusicai-${{ github.sha }}-osx-unsigned.dmg
-          
-          cd ${GITHUB_WORKSPACE}/release
-          for i in cmusicai-${{ github.sha }}-macos.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.dmg; do
-              if [ -e ${i} ]; then
-                  md5sum ${i} >> ${i}.md5sum
-                  sha256sum ${i} >> ${i}.sha256sum
-              fi
-          done
-
-      - name: Upload macOS Build Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: cmusicai-macos
-          path: release/*.tar.gz
-
-      - name: Upload config.log
-        if: failure()
-        uses: actions/upload-artifact@v2
-        with:
-          name: config-log
-          path: /Users/runner/work/Cmusic/Cmusic/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log
-
-      - name: Create macOS app bundle
-        run: |
-          mkdir -p CmusicAI-Qt.app/Contents/MacOS
-          cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
-          chmod +x /usr/bin/otool
+          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-*
+          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/codesign_allocate
           chmod +x /usr/bin/install_name_tool
           chmod +x /usr/bin/strip
           export OTOOL=/usr/bin/otool
@@ -194,3 +137,10 @@ jobs:
           ls -l CmusicAI-Qt.app/Contents/MacOS
           ls -l CmusicAI-Qt.app/Contents/Resources
           env
+
+      - name: Upload config.log
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: config-log
+          path: /home/runner/work/Cmusic/Cmusic/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log
