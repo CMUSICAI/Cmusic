@@ -31,6 +31,8 @@ elif [[ ${OS} == "osx" ]]; then
     tar -zxf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
     rm -rf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
     cd ..
+    chmod +x contrib/install_db4.sh
+    ./contrib/install_db4.sh $(pwd)
     make HOST=x86_64-apple-darwin14 -j2
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" ]]; then
     make HOST=x86_64-linux-gnu -j2
