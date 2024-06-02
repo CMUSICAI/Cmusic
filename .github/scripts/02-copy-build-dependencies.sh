@@ -42,31 +42,31 @@ elif [[ ${OS} == "osx" ]]; then
     chmod +x ${GITHUB_WORKSPACE}/contrib/install_db4.sh
     ${GITHUB_WORKSPACE}/contrib/install_db4.sh $(pwd)
 
-#    # Ensure autogen.sh is run to generate configure
-#    if [ ! -f "${GITHUB_WORKSPACE}/configure" ]; then
-#        if [ -f "${GITHUB_WORKSPACE}/autogen.sh" ]; then
-#            chmod +x ${GITHUB_WORKSPACE}/autogen.sh
-#            ${GITHUB_WORKSPACE}/autogen.sh
-#        else
-#            echo "Error: autogen.sh not found, and configure does not exist."
-#            exit 1
-#        fi
-#    fi
-#
-#    export BDB_PREFIX=${GITHUB_WORKSPACE}/db4
-#    export BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8"
-#    export BDB_CFLAGS="-I${BDB_PREFIX}/include"
-#    export BOOST_ROOT=/usr/include/boost
-#    export BOOST_LIB_PATH=/usr/lib/x86_64-linux-gnu
-#
-#    CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
-#    ${GITHUB_WORKSPACE}/configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}"
-#
-#    if [ $? -ne 0 ]; then
-#        echo "Configure failed. Displaying config.log:"
-#        cat config.log
-#        exit 1
-#    fi
+    # Ensure autogen.sh is run to generate configure
+    if [ ! -f "${GITHUB_WORKSPACE}/configure" ]; then
+        if [ -f "${GITHUB_WORKSPACE}/autogen.sh" ]; then
+            chmod +x ${GITHUB_WORKSPACE}/autogen.sh
+            ${GITHUB_WORKSPACE}/autogen.sh
+        else
+            echo "Error: autogen.sh not found, and configure does not exist."
+            exit 1
+        fi
+    fi
+
+    export BDB_PREFIX=${GITHUB_WORKSPACE}/db4
+    export BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8"
+    export BDB_CFLAGS="-I${BDB_PREFIX}/include"
+    export BOOST_ROOT=/usr/include/boost
+    export BOOST_LIB_PATH=/usr/lib/x86_64-linux-gnu
+
+    CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
+    ${GITHUB_WORKSPACE}/configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}"
+
+    if [ $? -ne 0 ]; then
+        echo "Configure failed. Displaying config.log:"
+        cat config.log
+        exit 1
+    fi
 
     make HOST=x86_64-apple-darwin14 -j2
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" ]]; then
