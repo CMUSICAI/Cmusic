@@ -12,6 +12,9 @@ echo "----------------------------------------"
 echo "Installing Build Packages for ${OS}"
 echo "----------------------------------------"
 
+set -e  # Exit immediately if a command exits with a non-zero status
+set -x  # Print commands and their arguments as they are executed
+
 if [[ ${OS} == "windows" ]]; then
     apt-get update
     apt-get install -y \
@@ -109,3 +112,17 @@ if [[ ${OS} != "osx" ]]; then
     update-alternatives --install /usr/bin/python python /usr/bin/python2 1
     update-alternatives --install /usr/bin/python python /usr/bin/python3 2
 fi
+
+# Verify installation and compiler versions
+echo "----------------------------------------"
+echo "Verifying installation and compiler versions"
+echo "----------------------------------------"
+gcc --version || clang --version
+g++ --version || clang++ --version
+autoconf --version
+automake --version
+libtool --version
+pkg-config --version
+
+# Capture config.log if configure fails
+trap 'if [ -f "config.log" ]; then cat config.log; fi' ERR
