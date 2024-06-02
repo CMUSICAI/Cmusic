@@ -67,13 +67,14 @@ elif [[ ${OS} == "osx" ]]; then
     cd depends/SDKs
     wget https://bitcoincore.org/depends-sources/sdks/Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
     tar -zxf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
+    mv MacOSX10.15.sdk ../
     cd -
 
     # Install osxcross for cross-compiling macOS binaries
     if [ ! -d "/opt/osxcross" ]; then
         git clone https://github.com/tpoechtrager/osxcross.git /opt/osxcross
         cd /opt/osxcross
-        mv ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.15.sdk tarballs/
+        mv ${GITHUB_WORKSPACE}/depends/MacOSX10.15.sdk tarballs/
         UNATTENDED=yes ./build.sh
         cd -
     fi
