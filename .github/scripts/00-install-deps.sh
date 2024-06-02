@@ -67,7 +67,8 @@ elif [[ ${OS} == "osx" ]]; then
     cd depends/SDKs
     wget https://bitcoincore.org/depends-sources/sdks/Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
     tar -zxf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
-    mv MacOSX10.15.sdk ../
+    cd Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers
+    mv MacOSX10.15.sdk ../../
     cd -
 
     # Install osxcross for cross-compiling macOS binaries
