@@ -42,37 +42,39 @@ if [[ ${OS} == "windows" ]]; then
 elif [[ ${OS} == "osx" ]]; then
     sudo apt-get update
     sudo apt-get install -y \
-    ca-certificates \
-    curl \
-    g++ \
-    git \
-    pkg-config \
-    autoconf \
-    librsvg2-bin \
-    libtiff-tools \
-    libtool \
     automake \
+    autotools-dev \
     bsdmainutils \
-    cmake \
-    imagemagick \
-    libcap-dev \
-    libz-dev \
-    libbz2-dev \
-    python3 \
-    python3-dev \
-    python3-setuptools \
-    fonts-tuffy \
+    build-essential \
+    curl \
     clang \
-    qtbase5-dev \
-    qttools5-dev-tools \
-    qtdeclarative5-dev \
-    libboost-all-dev \
-    libminiupnpc-dev \
-    protobuf-compiler \
-    libprotobuf-dev \
-    inkscape
+    llvm \
+    git \
+    libtool \
+    pkg-config \
+    python3 \
+    rename \
+    zip \
+    bison \
+    cmake \
+    mingw-w64 \
+    binutils-mingw-w64 \
+    gcc-mingw-w64 \
+    g++-mingw-w64
 
-    pip3 install ds-store
+    # Install osxcross for cross-compiling macOS binaries
+    if [ ! -d "/opt/osxcross" ]; then
+        git clone https://github.com/tpoechtrager/osxcross.git /opt/osxcross
+        cd /opt/osxcross
+        wget https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.xz
+        tar -Jxf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.xz -C tarballs/
+        rm Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.xz
+        UNATTENDED=yes ./build.sh
+        cd -
+    fi
+
+    export PATH="/opt/osxcross/target/bin:$PATH"
+    export OSXCROSS_MP_INC=1
 
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
     sudo apt-get update
