@@ -68,7 +68,7 @@ jobs:
       - name: Build macOS tools
         run: |
           cd ${GITHUB_WORKSPACE}/depends
-          make HOST=x86_64-apple-darwin14 -j$(nproc)
+          make HOST=x86_64-apple-darwin14 -j2
 
       - name: Ensure Permissions
         run: |
