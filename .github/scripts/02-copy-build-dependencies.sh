@@ -56,11 +56,11 @@ elif [[ ${OS} == "osx" ]]; then
     export BDB_PREFIX=${GITHUB_WORKSPACE}/db4
     export BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8"
     export BDB_CFLAGS="-I${BDB_PREFIX}/include"
-    export BOOST_ROOT=/usr/include/boost
-    export BOOST_LIB_PATH=/usr/lib/x86_64-linux-gnu
+    export BOOST_ROOT=/usr/local/opt/boost
+    export BOOST_LIB_PATH=/usr/local/opt/boost/lib
 
-    CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
-    ${GITHUB_WORKSPACE}/configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}"
+    ./autogen.sh
+    CONFIG_SITE=$PWD/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests GENISOIMAGE=$PWD/depends/x86_64-apple-darwin14/native/bin/genisoimage
 
     if [ $? -ne 0 ]; then
         echo "Configure failed. Displaying config.log:"
