@@ -32,8 +32,26 @@ elif [[ ${OS} == "osx" ]]; then
     tar -zxf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
     rm -rf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
     cd ..
+
+    # Ensure contrib/install_db4.sh exists
+    if [ ! -f "contrib/install_db4.sh" ]; then
+        echo "Error: contrib/install_db4.sh not found!"
+        exit 1
+    fi
+
     chmod +x contrib/install_db4.sh
     ./contrib/install_db4.sh $(pwd)
+
+    # Ensure autogen.sh is run to generate configure
+    if [ ! -f "configure" ]; then
+        if [ -f "autogen.sh" ]; then
+            chmod +x autogen.sh
+            ./autogen.sh
+        else
+            echo "Error: autogen.sh not found, and configure does not exist."
+            exit 1
+        fi
+    fi
 
     export BDB_PREFIX=${GITHUB_WORKSPACE}/db4
     export BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8"
@@ -49,7 +67,7 @@ elif [[ ${OS} == "osx" ]]; then
         cat config.log
         exit 1
     fi
-    
+
     make HOST=x86_64-apple-darwin14 -j2
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" ]]; then
     make HOST=x86_64-linux-gnu -j2
