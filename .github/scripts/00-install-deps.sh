@@ -40,18 +40,37 @@ if [[ ${OS} == "windows" ]]; then
     sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
 
 elif [[ ${OS} == "osx" ]]; then
-    # Check if Homebrew is installed, install if it's not
-    if ! command -v brew &> /dev/null; then
-        echo "Homebrew not found. Installing Homebrew..."
-        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    fi
-
-    brew update
-    brew install autoconf automake libtool pkg-config
     sudo apt-get update
-    sudo apt-get install -y ca-certificates curl g++ git pkg-config autoconf librsvg2-bin libtiff-tools libtool automake bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python python-dev python-setuptools fonts-tuffy \
-                            clang qtbase5-dev qttools5-dev-tools qtdeclarative5-dev libboost-all-dev libminiupnpc-dev protobuf-compiler libprotobuf-dev inkscape
+    sudo apt-get install -y \
+    ca-certificates \
+    curl \
+    g++ \
+    git \
+    pkg-config \
+    autoconf \
+    librsvg2-bin \
+    libtiff-tools \
+    libtool \
+    automake \
+    bsdmainutils \
+    cmake \
+    imagemagick \
+    libcap-dev \
+    libz-dev \
+    libbz2-dev \
+    python3 \
+    python3-dev \
+    python3-setuptools \
+    fonts-tuffy \
+    clang \
+    qtbase5-dev \
+    qttools5-dev-tools \
+    qtdeclarative5-dev \
+    libboost-all-dev \
+    libminiupnpc-dev \
+    protobuf-compiler \
+    libprotobuf-dev \
+    inkscape
 
     pip3 install ds-store
 
