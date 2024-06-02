@@ -73,7 +73,11 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: cmusicai-build
-          path: ${GITHUB_WORKSPACE}
+          path: |
+            ${GITHUB_WORKSPACE}/src
+            ${GITHUB_WORKSPACE}/depends
+            ${GITHUB_WORKSPACE}/contrib
+            ${GITHUB_WORKSPACE}/build-aux
 
   package:
     needs: build
