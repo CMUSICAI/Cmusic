@@ -150,7 +150,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: config-log
-          path: /home/runner/work/Cmusic/Cmusic/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log
+          path: /Users/runner/work/Cmusic/Cmusic/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log
 
       - name: Create macOS app bundle
         run: |
