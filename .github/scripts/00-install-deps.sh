@@ -73,7 +73,7 @@ elif [[ ${OS} == "osx" ]]; then
     if [ ! -d "/opt/osxcross" ]; then
         git clone https://github.com/tpoechtrager/osxcross.git /opt/osxcross
         cd /opt/osxcross
-        mv ../depends/SDKs/MacOSX10.15.sdk tarballs/
+        mv ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.15.sdk tarballs/
         UNATTENDED=yes ./build.sh
         cd -
     fi
