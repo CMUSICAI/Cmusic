@@ -71,6 +71,9 @@ elif [[ ${OS} == "osx" ]]; then
     # List the contents to verify the path
     tar -tzf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
 
+    # List the extracted directory structure
+    ls -R Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers
+
     # Correctly handle the directory structure
     if [ -d "Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers/MacOSX10.15.sdk" ]; then
         mv Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers/MacOSX10.15.sdk ../../
