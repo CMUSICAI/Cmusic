@@ -40,27 +40,36 @@ if [[ ${OS} == "windows" ]]; then
     sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
 
 elif [[ ${OS} == "osx" ]]; then
-    sudo apt-get update
-    sudo apt-get install -y \
+    apt -y install \
+    autoconf \
     automake \
-    autotools-dev \
+    awscli \
     bsdmainutils \
-    build-essential \
+    ca-certificates \
+    cmake \
     curl \
-    clang \
-    llvm \
+    fonts-tuffy \
+    g++ \
     git \
+    imagemagick \
+    libbz2-dev \
+    libcap-dev \
+    librsvg2-bin \
+    libtiff-tools \
     libtool \
+    libz-dev \
+    p7zip-full \
     pkg-config \
     python3 \
-    rename \
-    zip \
+    python3-dev \
+    python3-setuptools \
+    s3curl \
+    sleuthkit \
     bison \
-    cmake \
-    mingw-w64 \
-    binutils-mingw-w64 \
-    gcc-mingw-w64 \
-    g++-mingw-w64
+    libtinfo5 \
+    python3-pip
+
+    pip3 install ds-store
 
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
     sudo apt-get update
