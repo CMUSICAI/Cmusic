@@ -62,42 +62,6 @@ elif [[ ${OS} == "osx" ]]; then
     gcc-mingw-w64 \
     g++-mingw-w64
 
-    # Install SDKs and Toolchain in depends/SDKs
-    mkdir -p depends/SDKs
-    cd depends/SDKs
-    wget https://bitcoincore.org/depends-sources/sdks/Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
-    tar -zxf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
-
-    # List the contents to verify the path
-    tar -tzf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
-
-    # List the extracted directory structure
-    ls -R Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers
-
-    # Correctly handle the directory structure
-    if [ -d "Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers/MacOSX10.15.sdk" ]; then
-        mv Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers/MacOSX10.15.sdk ../../
-    elif [ -d "Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers/SDKs/MacOSX10.15.sdk" ]; then
-        mv Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers/SDKs/MacOSX10.15.sdk ../../
-    else
-        echo "Error: MacOSX10.15.sdk not found"
-        exit 1
-    fi
-
-    cd -
-
-    # Install osxcross for cross-compiling macOS binaries
-    if [ ! -d "/opt/osxcross" ]; then
-        git clone https://github.com/tpoechtrager/osxcross.git /opt/osxcross
-        cd /opt/osxcross
-        mv ${GITHUB_WORKSPACE}/depends/MacOSX10.15.sdk tarballs/
-        UNATTENDED=yes ./build.sh
-        cd -
-    fi
-
-    export PATH="/opt/osxcross/target/bin:$PATH"
-    export OSXCROSS_MP_INC=1
-
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
     sudo apt-get update
     sudo apt-get install -y \
