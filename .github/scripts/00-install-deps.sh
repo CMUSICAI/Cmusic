@@ -62,13 +62,18 @@ elif [[ ${OS} == "osx" ]]; then
     gcc-mingw-w64 \
     g++-mingw-w64
 
+    # Install SDKs and Toolchain in depends/SDKs
+    mkdir -p depends/SDKs
+    cd depends/SDKs
+    wget https://bitcoincore.org/depends-sources/sdks/Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
+    tar -zxf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
+    cd -
+
     # Install osxcross for cross-compiling macOS binaries
     if [ ! -d "/opt/osxcross" ]; then
         git clone https://github.com/tpoechtrager/osxcross.git /opt/osxcross
         cd /opt/osxcross
-        wget https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.xz
-        tar -Jxf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.xz -C tarballs/
-        rm Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.xz
+        mv ../depends/SDKs/MacOSX10.15.sdk tarballs/
         UNATTENDED=yes ./build.sh
         cd -
     fi
@@ -153,4 +158,4 @@ libtool --version || echo "libtool is not installed"
 pkg-config --version
 
 # Capture config.log if configure fails
-trap 'if [ -f "config.log" ]; then cat config.log; fi' ERR
+trap 'if [ -f "config.log" ];then cat config.log;fi' ERR
