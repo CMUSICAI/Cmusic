@@ -44,6 +44,12 @@ elif [[ ${OS} == "osx" ]]; then
     CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
     ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}"
 
+    if [ $? -ne 0 ]; then
+        echo "Configure failed. Displaying config.log:"
+        cat config.log
+        exit 1
+    fi
+    
     make HOST=x86_64-apple-darwin14 -j2
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" ]]; then
     make HOST=x86_64-linux-gnu -j2
