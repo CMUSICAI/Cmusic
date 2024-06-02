@@ -96,11 +96,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: cmusicai-build
-          path: ${GITHUB_WORKSPACE}
+          path: .
 
       - name: Unzip Build Artifacts
         run: |
-          unzip ${GITHUB_WORKSPACE}/build_artifacts.zip -d ${GITHUB_WORKSPACE}
+          unzip build_artifacts.zip -d ${GITHUB_WORKSPACE}
 
       - name: Ensure Permissions
         run: |
