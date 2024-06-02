@@ -59,8 +59,8 @@ elif [[ ${OS} == "osx" ]]; then
     export BOOST_ROOT=/usr/local/opt/boost
     export BOOST_LIB_PATH=/usr/local/opt/boost/lib
 
-    ./autogen.sh
-    CONFIG_SITE=$PWD/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests GENISOIMAGE=$PWD/depends/x86_64-apple-darwin14/native/bin/genisoimage
+    ${GITHUB_WORKSPACE}/autogen.sh
+    CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests GENISOIMAGE=$PWD/depends/x86_64-apple-darwin14/native/bin/genisoimage
 
     if [ $? -ne 0 ]; then
         echo "Configure failed. Displaying config.log:"
