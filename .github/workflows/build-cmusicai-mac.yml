@@ -69,15 +69,20 @@ jobs:
         run: |
           chmod -R 755 ${GITHUB_WORKSPACE}
 
+      - name: Archive build artifacts
+        run: |
+          mkdir -p build_artifacts
+          cp -r ${GITHUB_WORKSPACE}/src build_artifacts/
+          cp -r ${GITHUB_WORKSPACE}/depends build_artifacts/
+          cp -r ${GITHUB_WORKSPACE}/contrib build_artifacts/
+          cp -r ${GITHUB_WORKSPACE}/build-aux build_artifacts/
+          zip -r build_artifacts.zip build_artifacts/
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: cmusicai-build
-          path: |
-            ${GITHUB_WORKSPACE}/src
-            ${GITHUB_WORKSPACE}/depends
-            ${GITHUB_WORKSPACE}/contrib
-            ${GITHUB_WORKSPACE}/build-aux
+          path: build_artifacts.zip
 
   package:
     needs: build
@@ -93,6 +98,10 @@ jobs:
           name: cmusicai-build
           path: ${GITHUB_WORKSPACE}
 
+      - name: Unzip Build Artifacts
+        run: |
+          unzip ${GITHUB_WORKSPACE}/build_artifacts.zip -d ${GITHUB_WORKSPACE}
+
       - name: Ensure Permissions
         run: |
           chmod -R 755 ${GITHUB_WORKSPACE}
@@ -100,10 +109,10 @@ jobs:
       - name: Install and Package
         run: |
           # Ensure required tools have the right permissions
-          chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg
-          chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage
-          chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate
-          chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff
+          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg
+          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/genisoimage
+          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate
+          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff
           
           make install-strip DESTDIR=${GITHUB_WORKSPACE}/release
           
@@ -113,17 +122,17 @@ jobs:
           
           mkdir -p unsigned-app-cmusicai
           cp osx_volname unsigned-app-cmusicai/
-          cp contrib/macdeploy/detached-sig-apply.sh unsigned-app-cmusicai/
-          cp contrib/macdeploy/detached-sig-create.sh unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate unsigned-app-cmusicai/codesign_allocate
-          cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff unsigned-app-cmusicai/pagestuff
+          cp ${GITHUB_WORKSPACE}/build_artifacts/contrib/macdeploy/detached-sig-apply.sh unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/build_artifacts/contrib/macdeploy/detached-sig-create.sh unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/genisoimage unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate unsigned-app-cmusicai/codesign_allocate
+          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff unsigned-app-cmusicai/pagestuff
           mv dist unsigned-app-cmusicai
           
           # Debugging statements
           echo "Contents of native/bin:"
-          ls -l ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin
+          ls -l ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin
           
           echo "Checking otool path:"
           which otool || echo "otool not found"
@@ -133,7 +142,7 @@ jobs:
           
           cd ${GITHUB_WORKSPACE}
           make deploy
-          ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg dmg "CmusicAI-Core.dmg" ${GITHUB_WORKSPACE}/release/cmusicai-${{ github.sha }}-osx-unsigned.dmg
+          ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg dmg "CmusicAI-Core.dmg" ${GITHUB_WORKSPACE}/release/cmusicai-${{ github.sha }}-osx-unsigned.dmg
           
           cd ${GITHUB_WORKSPACE}/release
           for i in cmusicai-${{ github.sha }}-macos.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.dmg; do
@@ -143,7 +152,7 @@ jobs:
               fi
           done
 
-      - name: Upload Build Artifacts
+      - name: Upload macOS Build Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: cmusicai-macos
