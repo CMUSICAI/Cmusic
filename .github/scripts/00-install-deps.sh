@@ -16,8 +16,8 @@ set -e  # Exit immediately if a command exits with a non-zero status
 set -x  # Print commands and their arguments as they are executed
 
 if [[ ${OS} == "windows" ]]; then
-    apt-get update
-    apt-get install -y \
+    sudo apt-get update
+    sudo apt-get install -y \
     automake \
     autotools-dev \
     bsdmainutils \
@@ -37,9 +37,16 @@ if [[ ${OS} == "windows" ]]; then
     zip \
     bison
 
-    update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+    sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
 
 elif [[ ${OS} == "osx" ]]; then
+    # Check if Homebrew is installed, install if it's not
+    if ! command -v brew &> /dev/null; then
+        echo "Homebrew not found. Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+
     brew update
     brew install autoconf automake libtool pkg-config
     sudo apt-get update
@@ -49,8 +56,8 @@ elif [[ ${OS} == "osx" ]]; then
     pip3 install ds-store
 
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
-    apt-get update
-    apt-get install -y \
+    sudo apt-get update
+    sudo apt-get install -y \
     apt-file \
     autoconf \
     automake \
@@ -80,8 +87,8 @@ elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64
     bison
 
 elif [[ ${OS} == "arm32v7" || ${OS} == "arm32v7-disable-wallet" ]]; then
-    apt-get update
-    apt-get install -y \
+    sudo apt-get update
+    sudo apt-get install -y \
     autoconf \
     automake \
     binutils-aarch64-linux-gnu \
@@ -109,8 +116,8 @@ else
 fi
 
 if [[ ${OS} != "osx" ]]; then
-    update-alternatives --install /usr/bin/python python /usr/bin/python2 1
-    update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+    sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+    sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 2
 fi
 
 # Verify installation and compiler versions
