@@ -147,7 +147,7 @@ gcc --version || clang --version
 g++ --version || clang++ --version
 autoconf --version
 automake --version
-libtool --version
+libtool --version || echo "libtool is not installed"
 pkg-config --version
 
 # Capture config.log if configure fails
