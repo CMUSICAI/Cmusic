@@ -22,7 +22,7 @@ echo "----------------------------------------"
 echo "Building Dependencies for ${OS}"
 echo "----------------------------------------"
 
-cd depends
+cd ${GITHUB_WORKSPACE}/depends
 if [[ ${OS} == "windows" ]]; then
     make HOST=x86_64-w64-mingw32 -j2
 elif [[ ${OS} == "osx" ]]; then
@@ -34,19 +34,19 @@ elif [[ ${OS} == "osx" ]]; then
     cd ..
 
     # Ensure contrib/install_db4.sh exists
-    if [ ! -f "contrib/install_db4.sh" ]; then
+    if [ ! -f "${GITHUB_WORKSPACE}/contrib/install_db4.sh" ]; then
         echo "Error: contrib/install_db4.sh not found!"
         exit 1
     fi
 
-    chmod +x contrib/install_db4.sh
-    ./contrib/install_db4.sh $(pwd)
+    chmod +x ${GITHUB_WORKSPACE}/contrib/install_db4.sh
+    ${GITHUB_WORKSPACE}/contrib/install_db4.sh $(pwd)
 
     # Ensure autogen.sh is run to generate configure
-    if [ ! -f "configure" ]; then
-        if [ -f "autogen.sh" ]; then
-            chmod +x autogen.sh
-            ./autogen.sh
+    if [ ! -f "${GITHUB_WORKSPACE}/configure" ]; then
+        if [ -f "${GITHUB_WORKSPACE}/autogen.sh" ]; then
+            chmod +x ${GITHUB_WORKSPACE}/autogen.sh
+            ${GITHUB_WORKSPACE}/autogen.sh
         else
             echo "Error: autogen.sh not found, and configure does not exist."
             exit 1
@@ -60,7 +60,7 @@ elif [[ ${OS} == "osx" ]]; then
     export BOOST_LIB_PATH=/usr/lib/x86_64-linux-gnu
 
     CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
-    ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}"
+    ${GITHUB_WORKSPACE}/configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}"
 
     if [ $? -ne 0 ]; then
         echo "Configure failed. Displaying config.log:"
