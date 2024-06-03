@@ -109,12 +109,12 @@ jobs:
       - name: Install and Package
         run: |
           # Ensure required tools have the right permissions
-#          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg
-#          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/genisoimage
-#          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate
-#          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff
-#
-#          make install-strip DESTDIR=${GITHUB_WORKSPACE}/release
+          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg
+          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/genisoimage
+          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate
+          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff
+          
+          make install-strip DESTDIR=${GITHUB_WORKSPACE}/release
           
           make osx_volname
           
@@ -172,20 +172,17 @@ jobs:
           chmod +x /usr/bin/otool
           chmod +x /usr/bin/install_name_tool
           chmod +x /usr/bin/strip
-          export OTOOL=/usr/bin/otool
-          export INSTALLNAMETOOL=/usr/bin/install_name_tool
-          export STRIP=/usr/bin/strip
-          echo "Checking if otool is accessible and executable"
-          ls -l /usr/bin/otool
-          echo "Checking if install_name_tool is accessible and executable"
-          ls -l /usr/bin/install_name_tool
-          echo "Running macdeployqtplus"
-          /usr/bin/python3 ./contrib/macdeploy/macdeployqtplus CmusicAI-Qt.app -translations-dir= -add-qt-tr da,de,es,hu,ru,uk,zh_CN,zh_TW -verbose 2
 
-      - name: Debugging Information
+      - name: Sign app bundle
         run: |
-          echo "Checking permissions and paths"
-          ls -l
-          ls -l CmusicAI-Qt.app/Contents/MacOS
-          ls -l CmusicAI-Qt.app/Contents/Resources
-          env
+          codesign -s "Developer ID Application: ${YOUR_APPLE_ID}" --deep --force --verify --verbose CmusicAI-Qt.app
+
+      - name: Package app bundle
+        run: |
+          hdiutil create -volname "CmusicAI" -srcfolder CmusicAI-Qt.app -ov -format UDZO CmusicAI.dmg
+
+      - name: Upload signed DMG
+        uses: actions/upload-artifact@v2
+        with:
+          name: cmusicai-signed-dmg
+          path: CmusicAI.dmg
