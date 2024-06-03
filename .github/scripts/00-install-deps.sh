@@ -40,34 +40,9 @@ if [[ ${OS} == "windows" ]]; then
     sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
 
 elif [[ ${OS} == "osx" ]]; then
-    apt -y install \
-    autoconf \
-    automake \
-    awscli \
-    bsdmainutils \
-    ca-certificates \
-    cmake \
-    curl \
-    fonts-tuffy \
-    g++ \
-    git \
-    imagemagick \
-    libbz2-dev \
-    libcap-dev \
-    librsvg2-bin \
-    libtiff-tools \
-    libtool \
-    libz-dev \
-    p7zip-full \
-    pkg-config \
-    python3 \
-    python3-dev \
-    python3-setuptools \
-    s3curl \
-    sleuthkit \
-    bison \
-    libtinfo5 \
-    python3-pip
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl g++ git pkg-config autoconf librsvg2-bin libtiff-tools libtool automake bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python python-dev python-setuptools fonts-tuffy \
+                                  clang qtbase5-dev qttools5-dev-tools qtdeclarative5-dev libboost-all-dev libminiupnpc-dev protobuf-compiler libprotobuf-dev inkscape
 
     pip3 install ds-store
 
