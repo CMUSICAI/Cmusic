@@ -122,7 +122,7 @@ jobs:
             chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff
           fi
           
-          make install-strip DESTDIR=${GITHUB_WORKSPACE}/release
+          make install DESTDIR=${GITHUB_WORKSPACE}/release
           
           make osx_volname
           
@@ -165,32 +165,3 @@ jobs:
         with:
           name: cmusicai-macos
           path: release/*.tar.gz
-
-      - name: Upload config.log
-        if: failure()
-        uses: actions/upload-artifact@v2
-        with:
-          name: config-log
-          path: /Users/runner/work/Cmusic/Cmusic/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log
-
-      - name: Create macOS app bundle
-        run: |
-          mkdir -p CmusicAI-Qt.app/Contents/MacOS
-          cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
-          chmod +x /usr/bin/otool
-          chmod +x /usr/bin/install_name_tool
-          chmod +x /usr/bin/strip
-
-      - name: Sign app bundle
-        run: |
-          codesign -s "Developer ID Application: ${YOUR_APPLE_ID}" --deep --force --verify --verbose CmusicAI-Qt.app
-
-      - name: Package app bundle
-        run: |
-          hdiutil create -volname "CmusicAI" -srcfolder CmusicAI-Qt.app -ov -format UDZO CmusicAI.dmg
-
-      - name: Upload signed DMG
-        uses: actions/upload-artifact@v2
-        with:
-          name: cmusicai-signed-dmg
-          path: CmusicAI.dmg
