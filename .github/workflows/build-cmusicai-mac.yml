@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-package:
     runs-on: ubuntu-20.04
 
     steps:
@@ -54,10 +54,7 @@ jobs:
           if [ ! -f ./configure ]; then
             echo "Error: configure script not found."
             exit 1
-          else
-            echo "Configure script exists."
           fi
-          chmod +x ./configure
 
       - name: Configure Build
         run: |
@@ -88,43 +85,6 @@ jobs:
           cp -r ${GITHUB_WORKSPACE}/build-aux build_artifacts/
           zip -r build_artifacts.zip build_artifacts/
 
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: cmusicai-build
-          path: build_artifacts.zip
-
-  package:
-    needs: build
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: cmusicai-build
-          path: .
-
-      - name: Unzip Build Artifacts
-        run: |
-          unzip build_artifacts.zip -d ${GITHUB_WORKSPACE}
-
-      - name: Ensure Permissions
-        run: |
-          chmod -R 755 ${GITHUB_WORKSPACE}
-
-      - name: Check for Makefile
-        run: |
-          if [ ! -f ${GITHUB_WORKSPACE}/Makefile ]; then
-            echo "Error: Makefile not found."
-            exit 1
-          else
-            echo "Makefile exists."
-          fi
-
       - name: Install and Package
         run: |
           # Ensure required tools have the right permissions
@@ -141,20 +101,10 @@ jobs:
             chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff
           fi
           
-          # Debugging steps
-          echo "Contents of GITHUB_WORKSPACE:"
-          ls -l ${GITHUB_WORKSPACE}
-          
-          echo "Contents of build_artifacts directory:"
-          ls -l ${GITHUB_WORKSPACE}/build_artifacts
-          
-          echo "Attempting to make install"
           make install DESTDIR=${GITHUB_WORKSPACE}/release
           
-          echo "Running make osx_volname"
           make osx_volname
           
-          echo "Running make deploydir"
           make deploydir
           
           mkdir -p unsigned-app-cmusicai
@@ -174,35 +124,36 @@ jobs:
           echo "Checking otool path:"
           which otool || echo "otool not found"
           
-          for i in unsigned-app-cmusicai/bin/cmuscai* unsigned-app-cmusicai/lib/*.dylib; do
-            [ -x "$i" ] || continue
-            echo "Processing $i"
-            if ! otool -l "$i" | fgrep -q LC_VERSION_MIN_MACOSX; then
-              continue
-            fi
-            echo "Adding LC_VERSION_MIN_MACOSX to $i"
-            install_name_tool -add_rpath /usr/local/opt/openssl/lib "$i"
+          cd unsigned-app-cmusicai
+          find . | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ${GITHUB_WORKSPACE}/release/cmusicai-${{ github.sha }}-osx-unsigned.tar.gz
+          
+          cd ${GITHUB_WORKSPACE}
+          make deploy
+          ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg dmg "CmusicAI-Core.dmg" ${GITHUB_WORKSPACE}/release/cmusicai-${{ github.sha }}-osx-unsigned.dmg
+          
+          cd ${GITHUB_WORKSPACE}/release
+          for i in cmusicai-${{ github.sha }}-macos.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.dmg; do
+              if [ -e ${i} ]; then
+                  md5sum ${i} >> ${i}.md5sum
+                  sha256sum ${i} >> ${i}.sha256sum
+              fi
           done
 
-          echo "Creating detached signatures"
-          for i in unsigned-app-cmusicai/{bin,lib}/*; do
-            [ -x "$i" ] || continue
-            echo "Signing $i"
-            codesign --remove-signature "$i"
-            sh unsigned-app-cmusicai/detached-sig-create.sh "$i" > "$i.sig"
-          done
-
-          echo "Generating checksums"
-          for i in unsigned-app-cmusicai/unsigned-app-cmusicai.dmg unsigned-app-cmusicai/unsigned-app-cmusicai-notarized.dmg unsigned-app-cmusicai/bin/cmuscai* unsigned-app-cmusicai/lib/*.dylib unsigned-app-cmusicai/{bin,lib}/*.sig; do
-            [ -e "$i" ] || continue
-            echo "Processing checksum for $i"
-            shasum -a 256 "$i" > "$i.sha256sum"
-          done
-
-          ls -l ${GITHUB_WORKSPACE}/release
-
-      - name: Upload Release Artifacts
+      - name: Upload macOS Build Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: cmusicai-release
-          path: ${GITHUB_WORKSPACE}/release
+          name: cmusicai-macos
+          path: release/*.tar.gz
+
+      - name: Upload config.log
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: config-log
+          path: /Users/runner/work/Cmusic/Cmusic/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log
+
+      - name: Create macOS app bundle
+        run: |
+          mkdir -p CmusicAI-Qt.app/Contents/MacOS
+          cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/
+          echo "App bundle created."
