@@ -65,6 +65,11 @@ jobs:
         run: |
           make -j$(nproc)
 
+      - name: Build macOS Tools
+        run: |
+          cd ${GITHUB_WORKSPACE}/depends
+          make HOST=x86_64-apple-darwin14 V=1
+
       - name: Ensure Permissions
         run: |
           chmod -R 755 ${GITHUB_WORKSPACE}
@@ -109,31 +114,28 @@ jobs:
       - name: Install and Package
         run: |
           # Ensure required tools have the right permissions
-          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg
-          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/genisoimage
-          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate
-          chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff
+          if [ -f "${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg" ]; then
+            chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg
+          fi
+          if [ -f "${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/genisoimage" ]; then
+            chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/genisoimage
+          fi
+          if [ -f "${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate" ]; then
+            chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate
+          fi
+          if [ -f "${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff" ]; then
+            chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff
+          fi
           
           make install-strip DESTDIR=${GITHUB_WORKSPACE}/release
           
           make osx_volname
-          
-          make deploydir
-          
-          mkdir -p unsigned-app-cmusicai
-          cp osx_volname unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/build_artifacts/contrib/macdeploy/detached-sig-apply.sh unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/build_artifacts/contrib/macdeploy/detached-sig-create.sh unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/genisoimage unsigned-app-cmusicai/
-          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-codesign_allocate unsigned-app-cmusicai/codesign_allocate
-          cp ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff unsigned-app-cmusicai/pagestuff
-          mv dist unsigned-app-cmusicai
-          
-          # Debugging statements
+
+      - name: Debugging Information
+        run: |
           echo "Contents of native/bin:"
           ls -l ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin
-          
+
           echo "Checking otool path:"
           which otool || echo "otool not found"
           
@@ -172,17 +174,13 @@ jobs:
           chmod +x /usr/bin/otool
           chmod +x /usr/bin/install_name_tool
           chmod +x /usr/bin/strip
+          export OTOOL=/usr/bin/otool
+          export INSTALLNAMETOOL=/usr/bin/install_name_tool
+          export STRIP=/usr/bin/strip
+          make deploy
 
-      - name: Sign app bundle
-        run: |
-          codesign -s "Developer ID Application: ${YOUR_APPLE_ID}" --deep --force --verify --verbose CmusicAI-Qt.app
-
-      - name: Package app bundle
-        run: |
-          hdiutil create -volname "CmusicAI" -srcfolder CmusicAI-Qt.app -ov -format UDZO CmusicAI.dmg
-
-      - name: Upload signed DMG
+      - name: Upload DMG Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: cmusicai-signed-dmg
-          path: CmusicAI.dmg
+          name: CmusicAI-Core.dmg
+          path: ${GITHUB_WORKSPACE}/release/CmusicAI-Core.dmg
