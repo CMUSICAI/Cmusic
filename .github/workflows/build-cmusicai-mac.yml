@@ -122,10 +122,20 @@ jobs:
             chmod +x ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-pagestuff
           fi
           
+          # Debugging steps
+          echo "Contents of GITHUB_WORKSPACE:"
+          ls -l ${GITHUB_WORKSPACE}
+          
+          echo "Contents of build_artifacts directory:"
+          ls -l ${GITHUB_WORKSPACE}/build_artifacts
+          
+          echo "Attempting to make install"
           make install DESTDIR=${GITHUB_WORKSPACE}/release
           
+          echo "Running make osx_volname"
           make osx_volname
           
+          echo "Running make deploydir"
           make deploydir
           
           mkdir -p unsigned-app-cmusicai
@@ -153,15 +163,14 @@ jobs:
           ${GITHUB_WORKSPACE}/build_artifacts/depends/x86_64-apple-darwin14/native/bin/dmg dmg "CmusicAI-Core.dmg" ${GITHUB_WORKSPACE}/release/cmusicai-${{ github.sha }}-osx-unsigned.dmg
           
           cd ${GITHUB_WORKSPACE}/release
-          for i in cmusicai-${{ github.sha }}-macos.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.dmg; do
-              if [ -e ${i} ]; then
-                  md5sum ${i} >> ${i}.md5sum
-                  sha256sum ${i} >> ${i}.sha256sum
-              fi
+          for i in cmusicai-${{ github.sha }}-macos.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.dmg; do
+            shasum -a 256 $i > $i.sha256sum
           done
+          
+          ls -l ${GITHUB_WORKSPACE}/release
 
-      - name: Upload macOS Build Artifacts
+      - name: Upload Release Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: cmusicai-macos
-          path: release/*.tar.gz
+          name: cmusicai-release
+          path: ${GITHUB_WORKSPACE}/release
