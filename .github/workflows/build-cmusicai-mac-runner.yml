@@ -14,7 +14,7 @@ jobs:
       - name: Set up dependencies
         run: |
           brew update
-          brew install automake libtool boost miniupnpc openssl@1.1 pkg-config protobuf qt librsvg imagemagick pthread
+          brew install automake libtool boost miniupnpc openssl@1.1 pkg-config protobuf qt librsvg imagemagick
 
       - name: Install SDKs and Toolchain
         run: |
@@ -59,6 +59,8 @@ jobs:
           export BDB_CFLAGS="-I${BDB_PREFIX}/include"
           export BOOST_ROOT=$(brew --prefix boost)
           export BOOST_LIB_PATH=$(brew --prefix boost)/lib
+          export CPPFLAGS="-I/usr/local/include -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"
+          export LDFLAGS="-L/usr/local/lib -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
           CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
           ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH}
 
