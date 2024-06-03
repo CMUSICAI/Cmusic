@@ -26,7 +26,8 @@ jobs:
       - name: Install Berkeley DB
         run: |
           chmod +x contrib/install_db4.sh
-          ./contrib/install_db4.sh $(pwd)
+          sed -i '' 's/^#define HAVE_MUTEX_UNIX_FCNTL 1$/#undef HAVE_MUTEX_UNIX_FCNTL/' db-4.8.30.NC/dist/configure
+          ./contrib/install_db4.sh $(pwd) --with-mutex=POSIX/pthreads
 
       - name: Generate background.tiff files
         run: |
