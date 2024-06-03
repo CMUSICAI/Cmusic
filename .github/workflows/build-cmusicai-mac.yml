@@ -15,7 +15,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ca-certificates curl g++ git pkg-config autoconf librsvg2-bin libtiff-tools libtool automake bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python python-dev python-setuptools fonts-tuffy \
-                                  clang qtbase5-dev qttools5-dev-tools qtdeclarative5-dev libboost-all-dev libminiupnpc-dev protobuf-compiler libprotobuf-dev inkscape
+                                  clang qtbase5-dev qttools5-dev-tools qtdeclarative5-dev libboost-all-dev libminiupnpc-dev protobuf-compiler libprotobuf-dev inkscape patchelf
 
       - name: Install SDKs and Toolchain
         run: |
@@ -45,7 +45,6 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE}
           if [ ! -f ./configure ]; then
-            echo "Generating configure script"
             ./autogen.sh
           fi
 
@@ -144,20 +143,6 @@ jobs:
         run: |
           mkdir -p CmusicAI-Qt.app/Contents/MacOS
           cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
-
-#      - name: Sign app bundle
-#        run: |
-#          codesign -s "Developer ID Application: ${YOUR_APPLE_ID}" --deep --force --verify --verbose CmusicAI-Qt.app
-
-#      - name: Package app bundle
-#        run: |
-#          hdiutil create -volname "CmusicAI" -srcfolder CmusicAI-Qt.app -ov -format UDZO CmusicAI.dmg
-#
-#      - name: Upload signed DMG
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: cmusicai-signed-dmg
-#          path: CmusicAI.dmg
 
       - name: Upload config.log
         if: failure()
