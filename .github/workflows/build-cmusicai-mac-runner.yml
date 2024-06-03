@@ -70,7 +70,7 @@ jobs:
           export BOOST_LIB_PATH=$(brew --prefix boost)/lib
           export CPPFLAGS="-I/usr/local/include -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"
           export LDFLAGS="-L/usr/local/lib -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
-          export CXXFLAGS="-std=c++17"
+          export CXXFLAGS="-std=c++11"
           export CFLAGS="-std=c11"
           CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
           ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} --enable-debug
