@@ -74,6 +74,7 @@ jobs:
       - name: Ensure Permissions
         run: |
           chmod -R 755 ${GITHUB_WORKSPACE}
+          chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/*
 
       - name: Install and Package
         run: |
