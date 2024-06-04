@@ -55,14 +55,19 @@ jobs:
             exit 1
           fi
 
+      - name: Debug Environment Variables
+        run: |
+          echo "Checking environment variables..."
+          env
+
       - name: Build macOS cross-compilation tools
         run: |
           cd depends
           make HOST=x86_64-apple-darwin14 -j2
         env:
           SDK_PATH: ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
-          CC: x86_64-apple-darwin14-clang
-          CXX: x86_64-apple-darwin14-clang++
+          CC: ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
+          CXX: ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
 
       - name: Check cross-compilation tools availability
         run: |
@@ -150,7 +155,6 @@ jobs:
               fi
           done
           echo "Checksums calculated. Package installation and generation complete."
-
 
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
