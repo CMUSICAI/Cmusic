@@ -55,14 +55,20 @@ jobs:
             exit 1
           fi
 
+      - name: Check cross-compilation tools availability
+        run: |
+          echo $PATH
+          ls -la ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin
+          which x86_64-apple-darwin14-g++
+          which x86_64-apple-darwin14-clang++
+
+
       - name: Configure Build
         run: |
           export PATH="${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH"
           export CC="${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang"
           export CXX="${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++"
-          export AR="${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-ar"
-          export RANLIB="${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-ranlib"
-          CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests --host=x86_64-apple-darwin14 GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage
+          CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests --host=x86_64-apple-darwin14
 
       - name: Build CmusicAI
         run: |
