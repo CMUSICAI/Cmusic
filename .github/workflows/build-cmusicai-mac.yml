@@ -63,7 +63,7 @@ jobs:
       - name: Build macOS cross-compilation tools
         run: |
           cd depends
-          make HOST=x86_64-apple-darwin14 -j2
+          make HOST=x86_64-apple-darwin14 -j1
         env:
           SDK_PATH: ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
           CC: ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
@@ -78,15 +78,18 @@ jobs:
 
       - name: Configure Build
         run: |
-          export PATH="${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH"
-          export CC="${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang"
-          export CXX="${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++"
-          export LDFLAGS="-L/usr/local/lib -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -latomic"
-          CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests --host=x86_64-apple-darwin14 --with-libs=-latomic
+          export BDB_PREFIX=${GITHUB_WORKSPACE}/db4
+          export BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8"
+          export BDB_CFLAGS="-I${BDB_PREFIX}/include"
+          export BOOST_ROOT=/usr/local/opt/boost
+          export BOOST_LIB_PATH=/usr/local/opt/boost/lib
+      
+          CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
+          ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}"
 
       - name: Build CmusicAI
         run: |
-          make -j4
+          make -j1
 
       - name: Ensure Permissions
         run: |
