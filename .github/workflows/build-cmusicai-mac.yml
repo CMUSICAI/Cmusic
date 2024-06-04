@@ -79,7 +79,6 @@ jobs:
       - name: Install and Package
         run: |
           # Ensure required tools have the right permissions
-          chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/*
           make osx_volname
           make deploydir
           mkdir -p unsigned-app-cmusicai
