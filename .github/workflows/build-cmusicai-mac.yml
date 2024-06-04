@@ -37,6 +37,18 @@ jobs:
           rsvg-convert -f png -d 72 -p 72 background.temp.svg -o dpi72.background.png
           convert dpi72.background.png dpi72.background.tiff
 
+      - name: Build macOS Cross-Compilation Tools
+        run: |
+          cd depends
+          make HOST=x86_64-apple-darwin14 -j1
+
+      - name: Set Environment Variables
+        run: |
+          export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
+          export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH
+          echo "export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk" >> $GITHUB_ENV
+          echo "export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:\$PATH" >> $GITHUB_ENV
+
       - name: Prepare Build Environment
         run: |
           cd ${GITHUB_WORKSPACE}
@@ -51,59 +63,15 @@ jobs:
             exit 1
           fi
 
-      - name: Set Environment Variables
+      - name: Configure and Build CmusicAI
         run: |
           export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
-          export CC=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
-          export CXX=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
-          echo "SDK_PATH set to $SDK_PATH"
-          echo "CC set to $CC"
-          echo "CXX set to $CXX"
-
-      - name: Debug Clang Installation Path
-        run: |
-          echo "Listing contents of ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/"
-          ls -l ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/
-          file ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
-          if [ -x "${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang" ]; then
-            echo "Clang is installed and executable."
-          else
-            echo "Clang is not installed or not executable."
-            exit 1
-          fi
-
-      - name: Verify SDK Path
-        run: |
-          if [ -d "$SDK_PATH" ]; then
-            echo "SDK path is valid."
-          else
-            echo "SDK path is not valid."
-            exit 1
-          fi
-
-      - name: Build macOS Cross-Compilation Tools with Verbose Output
-        run: |
-          cd depends
-          make HOST=x86_64-apple-darwin14 -j1 V=1 || (cat /home/runner/work/Cmusic/Cmusic/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log && false)
+          export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH
+          CONFIG_SITE=$PWD/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests
+          make -j$(nproc)
         env:
           SDK_PATH: ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
-          CC: ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
-          CXX: ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
-
-      - name: Configure Build
-        run: |
-          export BDB_PREFIX=${GITHUB_WORKSPACE}/db4
-          export BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8"
-          export BDB_CFLAGS="-I${BDB_PREFIX}/include"
-          export BOOST_ROOT=/usr/local/opt/boost
-          export BOOST_LIB_PATH=/usr/local/opt/boost/lib
-      
-          CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site \
-          ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --with-gui=qt5 --with-boost=${BOOST_ROOT} --with-boost-libdir=${BOOST_LIB_PATH} GENISOIMAGE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/genisoimage BDB_LIBS="${BDB_LIBS}" BDB_CFLAGS="${BDB_CFLAGS}"
-
-      - name: Build CmusicAI
-        run: |
-          make -j1
+          PATH: ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH
 
       - name: Ensure Permissions
         run: |
