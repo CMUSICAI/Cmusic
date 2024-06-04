@@ -45,7 +45,6 @@ elif [[ ${OS} == "osx" ]]; then
     # Ensure autogen.sh is run to generate configure
     if [ ! -f "${GITHUB_WORKSPACE}/configure" ]; then
         if [ -f "${GITHUB_WORKSPACE}/autogen.sh" ]; then
-            chmod +x ${GITHUB_WORKSPACE}/autogen.sh
             ${GITHUB_WORKSPACE}/autogen.sh
         else
             echo "Error: autogen.sh not found, and configure does not exist."
@@ -53,7 +52,6 @@ elif [[ ${OS} == "osx" ]]; then
         fi
     fi
 
-    cd ${GITHUB_WORKSPACE}
     export BDB_PREFIX=${GITHUB_WORKSPACE}/db4
     export BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8"
     export BDB_CFLAGS="-I${BDB_PREFIX}/include"
