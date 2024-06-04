@@ -16,6 +16,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ca-certificates curl g++ git pkg-config autoconf librsvg2-bin libtiff-tools libtool automake bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python3 python3-dev python3-setuptools fonts-tuffy \
                                   clang qtbase5-dev qttools5-dev-tools qtdeclarative5-dev libboost-all-dev libminiupnpc-dev protobuf-compiler libprotobuf-dev inkscape patchelf
+          sudo apt-get install -y clang-11 libc++-dev libc++abi-dev
 
       - name: Install SDKs
         run: |
@@ -37,24 +38,6 @@ jobs:
           rsvg-convert -f png -d 72 -p 72 background.temp.svg -o dpi72.background.png
           convert dpi72.background.png dpi72.background.tiff
 
-      - name: Build macOS Cross-Compilation Tools
-        run: |
-          cd depends
-          make HOST=x86_64-apple-darwin14 -j1
-        env:
-          SDK_PATH: ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
-
-      - name: Set Environment Variables
-        run: |
-          export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
-          export CC=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
-          export CXX=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
-          export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH
-          echo "export SDK_PATH=${SDK_PATH}" >> $GITHUB_ENV
-          echo "export CC=${CC}" >> $GITHUB_ENV
-          echo "export CXX=${CXX}" >> $GITHUB_ENV
-          echo "export PATH=${PATH}" >> $GITHUB_ENV
-
       - name: Prepare Build Environment
         run: |
           cd ${GITHUB_WORKSPACE}
@@ -69,11 +52,17 @@ jobs:
             exit 1
           fi
 
-      - name: Configure and Build CmusicAI
+      - name: Build macOS Cross-Compilation Tools
         run: |
-          source $GITHUB_ENV
-          CONFIG_SITE=$PWD/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests
-          make -j$(nproc)
+          cd depends
+          make HOST=x86_64-apple-darwin14 -j1 || (cat work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log && exit 1)
+        env:
+          SDK_PATH: ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
+
+      - name: Export Paths
+        run: |
+          echo "export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk" >> $GITHUB_ENV
+          echo "export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH" >> $GITHUB_ENV
 
       - name: Ensure Permissions
         run: |
