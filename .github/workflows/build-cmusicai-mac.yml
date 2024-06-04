@@ -60,28 +60,34 @@ jobs:
           echo "Checking environment variables..."
           env
 
+      - name: Check if Toolchain Directory Exists
+        run: |
+          if [ ! -d "${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/" ]; then
+            echo "Toolchain directory does not exist. Building toolchain..."
+            cd ${GITHUB_WORKSPACE}/depends
+            make HOST=x86_64-apple-darwin14 -j1
+          else
+            echo "Toolchain directory exists."
+          fi
+
       - name: Build macOS cross-compilation tools
         run: |
           cd depends
-          ls ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/
-          chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
-          chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
-          ls ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
-          export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
-          export CC=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
-          export CXX=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
-          make HOST=x86_64-apple-darwin14 -j1
+          if [ -d "${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/" ]; then
+            chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
+            chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
+            export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
+            export CC=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
+            export CXX=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
+            make HOST=x86_64-apple-darwin14 -j1
+          else
+            echo "Error: Toolchain directory not found after attempting to build."
+            exit 1
+          fi
         env:
           SDK_PATH: ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
           CC: ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
           CXX: ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
-
-      - name: Check cross-compilation tools availability
-        run: |
-          echo $PATH
-          ls -la ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin
-          which x86_64-apple-darwin14-g++
-          which x86_64-apple-darwin14-clang++
 
       - name: Configure Build
         run: |
