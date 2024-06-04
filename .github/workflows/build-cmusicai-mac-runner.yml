@@ -122,4 +122,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: config-log
-          path: ${GITHUB_WORKSPACE}/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log
+          path: ${GITHUB_WORKSPACE}/config.log

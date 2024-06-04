@@ -81,7 +81,8 @@ jobs:
           export PATH="${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH"
           export CC="${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang"
           export CXX="${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++"
-          CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests --host=x86_64-apple-darwin14
+          export LDFLAGS="-L/usr/local/lib -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -latomic"
+          CONFIG_SITE=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests --host=x86_64-apple-darwin14 --with-libs=-latomic
 
       - name: Build CmusicAI
         run: |
