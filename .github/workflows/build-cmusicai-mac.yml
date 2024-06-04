@@ -63,6 +63,13 @@ jobs:
       - name: Build macOS cross-compilation tools
         run: |
           cd depends
+          ls ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/
+          chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
+          chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
+          ls ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
+          export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
+          export CC=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
+          export CXX=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
           make HOST=x86_64-apple-darwin14 -j1
         env:
           SDK_PATH: ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
