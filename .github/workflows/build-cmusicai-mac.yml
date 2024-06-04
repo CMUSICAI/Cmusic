@@ -59,6 +59,10 @@ jobs:
         run: |
           cd depends
           make HOST=x86_64-apple-darwin14 -j2
+        env:
+          SDK_PATH: ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
+          CC: x86_64-apple-darwin14-clang
+          CXX: x86_64-apple-darwin14-clang++
 
       - name: Check cross-compilation tools availability
         run: |
