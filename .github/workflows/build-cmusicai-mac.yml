@@ -54,9 +54,35 @@ jobs:
       - name: Build macOS Cross-Compilation Tools
         run: |
           cd depends
-          make HOST=x86_64-apple-darwin14 -j1 || (cat work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log && exit 1)
+          make HOST=x86_64-apple-darwin14 -j1 2>&1 | tee build.log
+          cat build.log || true
         env:
           SDK_PATH: ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
+
+      - name: Export Paths
+        run: |
+          echo "export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk" >> $GITHUB_ENV
+          echo "export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Run Configuration with Detailed Logging
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          mkdir -p build
+          cd build
+          ../configure --host=x86_64-apple-darwin14 --disable-dependency-tracking --prefix=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native --target=x86_64-apple-darwin14 --disable-lto-support CC=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/clang CXX=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/clang++ NM=nm RANLIB=ranlib AR=ar CPPFLAGS=-I${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/include LDFLAGS=-L${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/lib -Wl,-rpath=\$$ORIGIN/../lib | tee config.log
+          cat config.log || true
+
+      - name: Upload config.log if failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: config-log
+          path: ${GITHUB_WORKSPACE}/build/config.log
+
+      - name: Build Project
+        run: |
+          cd ${GITHUB_WORKSPACE}/build
+          make -j4
 
       - name: Export Paths
         run: |
