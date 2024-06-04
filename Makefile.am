@@ -19,9 +19,9 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libcmusicaiconsensus.pc
 endif
 
-CMUSICAID_BIN=$(top_builddir)/src/cmusicaid$(EXEEXT)
-CMUSICAI_QT_BIN=$(top_builddir)/src/qt/cmusicai-qt$(EXEEXT)
-CMUSICAI_CLI_BIN=$(top_builddir)/src/cmusicai-cli$(EXEEXT)
+CMUSICAID_BIN=$(top_builddir)/src/$(CMUSICAI_DAEMON_NAME)$(EXEEXT)
+CMUSICAI_QT_BIN=$(top_builddir)/src/qt/$(CMUSICAI_GUI_NAME)$(EXEEXT)
+CMUSICAI_CLI_BIN=$(top_builddir)/src/$(CMUSIC_CLI_NAME)$(EXEEXT)
 CMUSICAI_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
 CMUSICAI_CLI_INSTALL=$(top_builddir)/contrib/install_cli.sh
 

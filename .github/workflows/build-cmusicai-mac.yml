@@ -79,7 +79,11 @@ jobs:
         run: |
           echo "Starting the package installation and macOS bundle creation process."
           echo "Ensuring the availability of all necessary binaries..."
-          ls -l ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/
+          if [ -d "${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/" ]; then
+            ls -l ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/
+          else
+            echo "Directory does not exist."
+          fi
           
           echo "Running osx_volname..."
           make osx_volname
