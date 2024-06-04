@@ -37,10 +37,6 @@ jobs:
           rsvg-convert -f png -d 72 -p 72 background.temp.svg -o dpi72.background.png
           convert dpi72.background.png dpi72.background.tiff
 
-      - name: Export Paths
-        run: |
-          echo "export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH" >> $GITHUB_ENV
-
       - name: Prepare Build Environment
         run: |
           cd ${GITHUB_WORKSPACE}
