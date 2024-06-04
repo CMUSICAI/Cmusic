@@ -60,9 +60,12 @@ jobs:
           echo "CC set to $CC"
           echo "CXX set to $CXX"
 
-      - name: Verify Clang Installation
+      - name: Debug Clang Installation Path
         run: |
-          if [ -x "$CC" ]; then
+          echo "Listing contents of ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/"
+          ls -l ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/
+          file ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
+          if [ -x "${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang" ]; then
             echo "Clang is installed and executable."
           else
             echo "Clang is not installed or not executable."
