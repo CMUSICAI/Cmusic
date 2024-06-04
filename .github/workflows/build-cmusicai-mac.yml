@@ -55,13 +55,17 @@ jobs:
             exit 1
           fi
 
+      - name: Build macOS cross-compilation tools
+        run: |
+          cd depends
+          make HOST=x86_64-apple-darwin14 -j2
+
       - name: Check cross-compilation tools availability
         run: |
           echo $PATH
           ls -la ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin
           which x86_64-apple-darwin14-g++
           which x86_64-apple-darwin14-clang++
-
 
       - name: Configure Build
         run: |
