@@ -152,9 +152,9 @@ jobs:
           mkdir -p CmusicAI-Qt.app/Contents/MacOS
           cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
 
-      - name: Upload config.log
+      - name: Upload build log
         if: failure()
         uses: actions/upload-artifact@v2
         with:
-          name: config-log
-          path: ${GITHUB_WORKSPACE}/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log
+          name: build-log
+          path: depends/build.log
