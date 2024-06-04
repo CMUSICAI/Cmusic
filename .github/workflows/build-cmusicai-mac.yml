@@ -55,35 +55,37 @@ jobs:
             exit 1
           fi
 
-      - name: Debug Environment Variables
+      - name: Set Environment Variables
         run: |
-          echo "Checking environment variables..."
-          env
+          export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
+          export CC=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
+          export CXX=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
+          echo "SDK_PATH set to $SDK_PATH"
+          echo "CC set to $CC"
+          echo "CXX set to $CXX"
 
-      - name: Check if Toolchain Directory Exists
+      - name: Verify Clang Installation
         run: |
-          if [ ! -d "${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/" ]; then
-            echo "Toolchain directory does not exist. Building toolchain..."
-            cd ${GITHUB_WORKSPACE}/depends
-            make HOST=x86_64-apple-darwin14 -j1
+          if [ -x "$CC" ]; then
+            echo "Clang is installed and executable."
           else
-            echo "Toolchain directory exists."
-          fi
-
-      - name: Build macOS cross-compilation tools
-        run: |
-          cd depends
-          if [ -d "${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/" ]; then
-            chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
-            chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
-            export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
-            export CC=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
-            export CXX=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang++
-            make HOST=x86_64-apple-darwin14 -j1
-          else
-            echo "Error: Toolchain directory not found after attempting to build."
+            echo "Clang is not installed or not executable."
             exit 1
           fi
+
+      - name: Verify SDK Path
+        run: |
+          if [ -d "$SDK_PATH" ]; then
+            echo "SDK path is valid."
+          else
+            echo "SDK path is not valid."
+            exit 1
+          fi
+
+      - name: Build macOS Cross-Compilation Tools with Verbose Output
+        run: |
+          cd depends
+          make HOST=x86_64-apple-darwin14 -j1 V=1 || (cat /home/runner/work/Cmusic/Cmusic/depends/work/build/x86_64-apple-darwin14/native_cctools/*/cctools/config.log && false)
         env:
           SDK_PATH: ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
           CC: ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/x86_64-apple-darwin14-clang
