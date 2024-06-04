@@ -77,8 +77,6 @@ jobs:
 
       - name: Install and Package
         run: |
-          chmod +x ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/*
-          echo "chmod done"
           make osx_volname
           echo "osx_volumn done"
           make deploydir
