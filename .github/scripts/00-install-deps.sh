@@ -12,9 +12,12 @@ echo "----------------------------------------"
 echo "Installing Build Packages for ${OS}"
 echo "----------------------------------------"
 
+set -e  # Exit immediately if a command exits with a non-zero status
+set -x  # Print commands and their arguments as they are executed
+
 if [[ ${OS} == "windows" ]]; then
-    apt-get update
-    apt-get install -y \
+    sudo apt-get update
+    sudo apt-get install -y \
     automake \
     autotools-dev \
     bsdmainutils \
@@ -34,43 +37,18 @@ if [[ ${OS} == "windows" ]]; then
     zip \
     bison
 
-    update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+    sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
 
 elif [[ ${OS} == "osx" ]]; then
-    apt -y install \
-    autoconf \
-    automake \
-    awscli \
-    bsdmainutils \
-    ca-certificates \
-    cmake \
-    curl \
-    fonts-tuffy \
-    g++ \
-    git \
-    imagemagick \
-    libbz2-dev \
-    libcap-dev \
-    librsvg2-bin \
-    libtiff-tools \
-    libtool \
-    libz-dev \
-    p7zip-full \
-    pkg-config \
-    python3 \
-    python3-dev \
-    python3-setuptools \
-    s3curl \
-    sleuthkit \
-    bison \
-    libtinfo5 \
-    python3-pip
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl g++ git pkg-config autoconf librsvg2-bin libtiff-tools libtool automake bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python python-dev python-setuptools fonts-tuffy \
+                                  clang qtbase5-dev qttools5-dev-tools qtdeclarative5-dev libboost-all-dev libminiupnpc-dev protobuf-compiler libprotobuf-dev inkscape
 
     pip3 install ds-store
 
 elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64" || ${OS} == "aarch64-disable-wallet" ]]; then
-    apt-get update
-    apt-get install -y \
+    sudo apt-get update
+    sudo apt-get install -y \
     apt-file \
     autoconf \
     automake \
@@ -100,8 +78,8 @@ elif [[ ${OS} == "linux" || ${OS} == "linux-disable-wallet" || ${OS} == "aarch64
     bison
 
 elif [[ ${OS} == "arm32v7" || ${OS} == "arm32v7-disable-wallet" ]]; then
-    apt-get update
-    apt-get install -y \
+    sudo apt-get update
+    sudo apt-get install -y \
     autoconf \
     automake \
     binutils-aarch64-linux-gnu \
@@ -129,6 +107,20 @@ else
 fi
 
 if [[ ${OS} != "osx" ]]; then
-    update-alternatives --install /usr/bin/python python /usr/bin/python2 1
-    update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+    sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+    sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 2
 fi
+
+# Verify installation and compiler versions
+echo "----------------------------------------"
+echo "Verifying installation and compiler versions"
+echo "----------------------------------------"
+gcc --version || clang --version
+g++ --version || clang++ --version
+autoconf --version
+automake --version
+libtool --version || echo "libtool is not installed"
+pkg-config --version
+
+# Capture config.log if configure fails
+trap 'if [ -f "config.log" ];then cat config.log;fi' ERR

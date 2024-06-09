@@ -1,0 +1,186 @@
+name: Build and Package CmusicAI for macOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_and_package:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl g++ git pkg-config autoconf librsvg2-bin libtiff-tools libtool automake bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python3 python3-dev python3-setuptools fonts-tuffy clang qtbase5-dev qttools5-dev-tools qtdeclarative5-dev libboost-all-dev libminiupnpc-dev protobuf-compiler libprotobuf-dev inkscape patchelf
+          sudo apt-get install -y clang-11 libc++-dev libc++abi-dev
+
+      - name: Install SDKs
+        run: |
+          mkdir -p depends/SDKs
+          cd depends/SDKs
+          curl -O https://bitcoincore.org/depends-sources/sdks/Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
+          tar -zxf Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz
+
+      - name: Install Berkeley DB
+        run: |
+          chmod +x contrib/install_db4.sh
+          ./contrib/install_db4.sh $(pwd)
+
+      - name: Generate background.tiff files
+        run: |
+          sed 's/PACKAGE_NAME/CmusicAI Core/' < "contrib/macdeploy/background.svg" > background.temp.svg
+          rsvg-convert -f png -d 36 -p 36 background.temp.svg -o dpi36.background.png
+          convert dpi36.background.png dpi36.background.tiff
+          rsvg-convert -f png -d 72 -p 72 background.temp.svg -o dpi72.background.png
+          convert dpi72.background.png dpi72.background.tiff
+
+      - name: Prepare Build Environment
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          if [ ! -f ./configure ]; then
+            ./autogen.sh
+          fi
+
+      - name: Ensure Configure Script
+        run: |
+          if [ ! -f ./configure ]; then
+            echo "Error: configure script not found."
+            exit 1
+          fi
+
+      - name: Build macOS Cross-Compilation Tools
+        run: |
+          cd depends
+          make HOST=x86_64-apple-darwin14 -j1 2>&1 | tee build.log
+          cat build.log || true
+        env:
+          SDK_PATH: ${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk
+
+      - name: Export Paths
+        run: |
+          echo "export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk" >> $GITHUB_ENV
+          echo "export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Run Configuration with Detailed Logging
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          mkdir -p build
+          cd build
+          ../configure --host=x86_64-apple-darwin14 --disable-dependency-tracking --prefix=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native --target=x86_64-apple-darwin14 --disable-lto-support CC=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/clang CXX=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/clang++ NM=nm RANLIB=ranlib AR=ar CPPFLAGS=-I${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/include LDFLAGS=-L${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/lib -Wl,-rpath=\$$ORIGIN/../lib | tee config.log
+          cat config.log || true
+
+      - name: Upload config.log if failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: config-log
+          path: ${GITHUB_WORKSPACE}/build/config.log
+
+      - name: Build Project
+        run: |
+          cd ${GITHUB_WORKSPACE}/build
+          make -j4
+
+      - name: Export Paths
+        run: |
+          echo "export SDK_PATH=${GITHUB_WORKSPACE}/depends/SDKs/MacOSX10.14.sdk" >> $GITHUB_ENV
+          echo "export PATH=${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Ensure Permissions
+        run: |
+          chmod -R 755 ${GITHUB_WORKSPACE}
+
+      - name: Install and Package
+        run: |
+          echo "Starting the package installation and macOS bundle creation process."
+          echo "Ensuring the availability of all necessary binaries..."
+          if [ -d "${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/" ]; then
+            ls -l ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/
+          else
+            echo "Directory does not exist."
+          fi
+          
+          echo "Running osx_volname..."
+          make osx_volname
+          echo "osx_volume done."
+          
+          echo "Creating deployment directory..."
+          make deploydir
+          echo "deploydir done."
+          
+          mkdir -p unsigned-app-cmusicai
+          echo "unsigned-app-cmusicai directory created."
+          
+          cp osx_volname unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/contrib/macdeploy/detached-sig-apply.sh unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/contrib/macdeploy/detached-sig-create.sh unsigned-app-cmusicai/
+          cp ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/* unsigned-app-cmusicai/
+          
+          echo "Files copied to unsigned-app-cmusicai directory. Moving dist..."
+          mv dist unsigned-app-cmusicai
+          echo "dist moved."
+          
+          echo "Creating OSX directory for installation..."
+          mkdir -p ~/OSX
+          echo "OSX directory created."
+          
+          echo "Exporting PATH to include native bin directory..."
+          export PATH=$PWD/depends/x86_64-apple-darwin14/native/bin:$PATH
+          echo "PATH exported. Current PATH: $PATH"
+          
+          echo "Installing with strip to OSX directory..."
+          make install-strip DESTDIR=~/OSX/$DISTNAME
+          echo "Installation to OSX directory completed."
+
+          # Debugging statements
+          echo "Contents of native/bin:"
+          ls -l ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin
+
+          echo "Compressing and preparing package for deployment..."
+          cd unsigned-app-cmusicai
+          find . | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ${GITHUB_WORKSPACE}/release/cmusicai-${{ github.sha }}-osx-unsigned.tar.gz
+          
+          cd ${GITHUB_WORKSPACE}
+          echo "Deploying dmg..."
+          ${GITHUB_WORKSPACE}/depends/x86_64-apple-darwin14/native/bin/dmg dmg "CmusicAI-Core.dmg" ${GITHUB_WORKSPACE}/release/cmusicai-${{ github.sha }}-osx-unsigned.dmg
+          echo "dmg deployed."
+
+          echo "Calculating checksums..."
+          cd ${GITHUB_WORKSPACE}/release
+          for i in cmusicai-${{ github.sha }}-macos.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.tar.gz cmusicai-${{ github.sha }}-osx-unsigned.dmg; do
+              if [ -e ${i} ]; then
+                  md5sum ${i} >> ${i}.md5sum
+                  sha256sum ${i} >> ${i}.sha256sum
+              fi
+          done
+          echo "Checksums calculated. Package installation and generation complete."
+
+      - name: Upload Package Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: cmusicai-package
+          path: |
+            release/cmusicai-${{ github.sha }}-macos.tar.gz
+            release/cmusicai-${{ github.sha }}-macos.tar.gz.md5sum
+            release/cmusicai-${{ github.sha }}-macos.tar.gz.sha256sum
+            release/cmusicai-${{ github.sha }}-osx-unsigned.tar.gz
+            release/cmusicai-${{ github.sha }}-osx-unsigned.tar.gz.md5sum
+            release/cmusicai-${{ github.sha }}-osx-unsigned.tar.gz.sha256sum
+            release/cmusicai-${{ github.sha }}-osx-unsigned.dmg
+            release/cmusicai-${{ github.sha }}-osx-unsigned.dmg.md5sum
+            release/cmusicai-${{ github.sha }}-osx-unsigned.dmg.sha256sum
+
+      - name: Create macOS app bundle
+        run: |
+          mkdir -p CmusicAI-Qt.app/Contents/MacOS
+          cp src/qt/cmusicai-qt CmusicAI-Qt.app/Contents/MacOS/CmusicAI-Qt
+
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-log
+          path: depends/build.log

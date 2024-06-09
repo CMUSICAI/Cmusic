@@ -16,11 +16,6 @@
 #include <assert.h>
 #include "chainparamsseeds.h"
 
-//TODO: Take these out
-extern double algoHashTotal[16];
-extern int algoHashHits[16];
-
-
 static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesisOutputScript, uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {
     CMutableTransaction txNew;
@@ -155,10 +150,10 @@ public:
 	    consensus.BIP34LockedIn = 6048; // Locked_in at height 6048
 
         // The best chain should have at least this much work
-        consensus.nMinimumChainWork = uint256S("00000000000000000000000000000000000000000000000001cb2477b76b256d"); // Block 66001
+        consensus.nMinimumChainWork = uint256S("00000000000000000000000000000000000000000000000002390b6529e07ceb"); // Block 101454
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("000000000095ad9759911ad2d8bfc4c2d8271ae29e68384b97aa9f74efce85a9"); // Block 63459
+        consensus.defaultAssumeValid = uint256S("0000000000b05d18dced07d0ba510a581bb817eb2dbed673bd5152c9f6728c9c"); // Block 101454
 
         pchMessageStart[0] = 0x43; // C
         pchMessageStart[1] = 0x4d; // M
@@ -196,16 +191,17 @@ public:
         fMiningRequiresPeers = true;
 
 		checkpointData = (CCheckpointData) {
-            {  
+            {
                 {0, uint256S("0x000000fcdb664de8b9cb710ef45ac5111d0061e5cc623d8e6582399ccb2df242")},
                 {63459, uint256S("0x000000000095ad9759911ad2d8bfc4c2d8271ae29e68384b97aa9f74efce85a9")},
+                {101454, uint256S("0x0000000000b05d18dced07d0ba510a581bb817eb2dbed673bd5152c9f6728c9c")}
             }
         };
 
         chainTxData = ChainTxData{
-            1710112797,
-            0,
-            0.0
+            1717971343, // UNIX timestamp of last known number of transactions (median time of the latest block)
+            24093, // Total number of transactions (from gettxoutsetinfo)
+            0.0  // Estimated number of transactions per second (replace with your calculated or estimated value if available)
         };
 
         /** CMS Start **/
