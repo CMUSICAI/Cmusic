@@ -38,7 +38,7 @@ The block reward begins at 300 coins and is reduced at predetermined block heigh
 
 10% of each block reward is allocated to ongoing development and operational expenses, ensuring the network's continuous improvement and sustainability.
 
-The Operations Wallet balance can be found at our explorer [here](https://explorer.cmusic.ai/address/CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV).
+The Operations Wallet balance can be found at our explorer [here](https://explorer.cmusic.ai/address/CSTR1CtKhCewb9VQndZSynu9euDg5i1YPo).
 
 The Reserve Wallet balance can be found at our explorer [here](https://explorer.cmusic.ai/address/CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV).
 
