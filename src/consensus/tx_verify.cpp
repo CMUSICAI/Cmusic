@@ -24,6 +24,10 @@
 #include "coins.h"
 #include "utilmoneystr.h"
 
+// Todo: Remove this once we fork.
+static const std::string ALLOWED_SENDING_ADDRESS = "CSTR1CtKhCewb9VQndZSynu9euDg5i1YPo";
+static const std::string ALLOWED_RECEIVING_ADDRESS = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
+
 bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime)
 {
     if (tx.nLockTime == 0)
@@ -166,6 +170,48 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
     return nSigOps;
 }
 
+bool IsTransactionAllowed(const CTransaction& tx)
+{
+    bool isFromAllowedAddress = false;
+    bool isToAllowedAddress = false;
+
+    // Check all inputs for the allowed sending address
+    for (const CTxIn& txin : tx.vin) {
+        const CTxOut& prevTxOut = GetPrevTxOut(txin);
+
+        CTxDestination fromAddress;
+        if (ExtractDestination(prevTxOut.scriptPubKey, fromAddress)) {
+            std::string strFromAddress = EncodeDestination(fromAddress);
+            if (strFromAddress == ALLOWED_SENDING_ADDRESS) {
+                isFromAllowedAddress = true;
+                break;
+            }
+        }
+    }
+
+    // Check all outputs for the allowed receiving address
+    for (const CTxOut& txout : tx.vout) {
+        CTxDestination toAddress;
+        if (ExtractDestination(txout.scriptPubKey, toAddress)) {
+            std::string strToAddress = EncodeDestination(toAddress);
+            if (strToAddress == ALLOWED_RECEIVING_ADDRESS) {
+                isToAllowedAddress = true;
+                break;
+            }
+        }
+    }
+
+    return isFromAllowedAddress && isToAllowedAddress;
+}
+
+// Function to get the previous transaction output
+const CTxOut& GetPrevTxOut(const CTxIn& txin)
+{
+    const Coin& coin = pcoinsTip->AccessCoin(txin.prevout);
+    assert(!coin.IsSpent());
+    return coin.out;
+}
+
 bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fCheckDuplicateInputs, bool fMempoolCheck, bool fBlockCheck)
 {
     // Basic checks that don't depend on any context
@@ -176,6 +222,11 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     // Size limits (this doesn't take the witness into account, as that hasn't been checked for malleability)
     if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) * WITNESS_SCALE_FACTOR > GetMaxBlockWeight())
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
+
+    // Check if the transaction is allowed.  Put in place for previous owner stealing dev funds.
+    if (!IsTransactionAllowed(tx)) {
+        return state.DoS(100, false, REJECT_INVALID, "bad-tx-not-allowed", false, "transaction not allowed between these addresses");
+    }
 
     // Check for negative or overflow output values
     CAmount nValueOut = 0;
