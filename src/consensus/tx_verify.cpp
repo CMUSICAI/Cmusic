@@ -229,7 +229,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
 
     // Check if the transaction is allowed.  Put in place for previous owner stealing dev funds.
-    if (!IsTransactionAllowed(tx, currentBlockHeight)) {
+    if (!IsTransactionAllowed(tx, chainActive.Height())) {
         return state.DoS(100, false, REJECT_INVALID, "bad-tx-not-allowed", false, "transaction not allowed between these addresses");
     }
 
