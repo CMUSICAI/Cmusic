@@ -25,6 +25,7 @@
 #include "utilmoneystr.h"
 
 // Todo: Remove this once we fork.
+const int ACTIVATION_BLOCK_HEIGHT = 130000;
 static const std::string ALLOWED_SENDING_ADDRESS = "CSTR1CtKhCewb9VQndZSynu9euDg5i1YPo";
 static const std::string ALLOWED_RECEIVING_ADDRESS = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
 
@@ -178,38 +179,42 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
     return nSigOps;
 }
 
-bool IsTransactionAllowed(const CTransaction& tx)
+bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
 {
     bool isFromAllowedAddress = false;
     bool isToAllowedAddress = false;
 
     // Check all inputs for the allowed sending address
-    for (const CTxIn& txin : tx.vin) {
-        const CTxOut& prevTxOut = GetPrevTxOut(txin);
+    if (currentBlockHeight >= ACTIVATION_BLOCK_HEIGHT) {
+        for (const CTxIn& txin : tx.vin) {
+            const CTxOut& prevTxOut = GetPrevTxOut(txin);
 
-        CTxDestination fromAddress;
-        if (ExtractDestination(prevTxOut.scriptPubKey, fromAddress)) {
-            std::string strFromAddress = EncodeDestination(fromAddress);
-            if (strFromAddress == ALLOWED_SENDING_ADDRESS) {
-                isFromAllowedAddress = true;
-                break;
+            CTxDestination fromAddress;
+            if (ExtractDestination(prevTxOut.scriptPubKey, fromAddress)) {
+                std::string strFromAddress = EncodeDestination(fromAddress);
+                if (strFromAddress == ALLOWED_SENDING_ADDRESS) {
+                    isFromAllowedAddress = true;
+                    break;
+                }
             }
         }
-    }
 
-    // Check all outputs for the allowed receiving address
-    for (const CTxOut& txout : tx.vout) {
-        CTxDestination toAddress;
-        if (ExtractDestination(txout.scriptPubKey, toAddress)) {
-            std::string strToAddress = EncodeDestination(toAddress);
-            if (strToAddress == ALLOWED_RECEIVING_ADDRESS) {
-                isToAllowedAddress = true;
-                break;
+        // Check all outputs for the allowed receiving address
+        for (const CTxOut& txout : tx.vout) {
+            CTxDestination toAddress;
+            if (ExtractDestination(txout.scriptPubKey, toAddress)) {
+                std::string strToAddress = EncodeDestination(toAddress);
+                if (strToAddress == ALLOWED_RECEIVING_ADDRESS) {
+                    isToAllowedAddress = true;
+                    break;
+                }
             }
         }
-    }
 
-    return isFromAllowedAddress && isToAllowedAddress;
+        return isFromAllowedAddress && isToAllowedAddress;
+    } else {
+        return true;
+    }
 }
 
 bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fCheckDuplicateInputs, bool fMempoolCheck, bool fBlockCheck)
@@ -224,7 +229,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
 
     // Check if the transaction is allowed.  Put in place for previous owner stealing dev funds.
-    if (!IsTransactionAllowed(tx)) {
+    if (!IsTransactionAllowed(tx, currentBlockHeight)) {
         return state.DoS(100, false, REJECT_INVALID, "bad-tx-not-allowed", false, "transaction not allowed between these addresses");
     }
 
