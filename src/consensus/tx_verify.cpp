@@ -28,6 +28,14 @@
 static const std::string ALLOWED_SENDING_ADDRESS = "CSTR1CtKhCewb9VQndZSynu9euDg5i1YPo";
 static const std::string ALLOWED_RECEIVING_ADDRESS = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
 
+// Function to get the previous transaction output
+const CTxOut& GetPrevTxOut(const CTxIn& txin)
+{
+    const Coin& coin = pcoinsTip->AccessCoin(txin.prevout);
+    assert(!coin.IsSpent());
+    return coin.out;
+}
+
 bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime)
 {
     if (tx.nLockTime == 0)
@@ -202,14 +210,6 @@ bool IsTransactionAllowed(const CTransaction& tx)
     }
 
     return isFromAllowedAddress && isToAllowedAddress;
-}
-
-// Function to get the previous transaction output
-const CTxOut& GetPrevTxOut(const CTxIn& txin)
-{
-    const Coin& coin = pcoinsTip->AccessCoin(txin.prevout);
-    assert(!coin.IsSpent());
-    return coin.out;
 }
 
 bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fCheckDuplicateInputs, bool fMempoolCheck, bool fBlockCheck)
