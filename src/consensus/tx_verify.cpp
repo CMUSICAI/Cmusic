@@ -34,6 +34,7 @@ const CTxOut& GetPrevTxOut(const CTxIn& txin)
 {
     const Coin& coin = pcoinsTip->AccessCoin(txin.prevout);
     if (coin.IsSpent()) {
+        LogPrintf("Hitting coin is spent %s\n", coin);
         throw std::runtime_error("Attempted to access a spent transaction output");
     }
     return coin.out;
@@ -190,6 +191,7 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
     if (currentBlockHeight >= ACTIVATION_BLOCK_HEIGHT) {
         LogPrintf("IsTransactionAllowed: Checking transaction at height %d\n", currentBlockHeight);
         for (const CTxIn& txin : tx.vin) {
+            LogPrintf("About to hit GetPrevTxOut %s\n", txin);
             const CTxOut& prevTxOut = GetPrevTxOut(txin);
 
             CTxDestination fromAddress;
