@@ -218,7 +218,6 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
 
     // If the allowed sending address is involved, check all outputs go only to the allowed receiving address
     if (foundFromAllowedAddress) {
-        LogPrintf("Checking from foundAddress %s\n", strFromAddress);
         for (const CTxOut& txout : tx.vout) {
             CTxDestination toAddress;
             LogPrintf("Checking from toAddress %s\n", toAddress);
