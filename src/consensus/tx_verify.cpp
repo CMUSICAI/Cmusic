@@ -25,7 +25,7 @@
 #include "utilmoneystr.h"
 
 // Todo: Remove this once we fork.
-const int ACTIVATION_BLOCK_HEIGHT = 130000;
+const int ACTIVATION_BLOCK_HEIGHT = 124000;
 static const std::string ALLOWED_SENDING_ADDRESS = "CSTR1CtKhCewb9VQndZSynu9euDg5i1YPo";
 static const std::string ALLOWED_RECEIVING_ADDRESS = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
 
