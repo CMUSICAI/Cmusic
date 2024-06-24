@@ -30,12 +30,11 @@ static const std::string ALLOWED_SENDING_ADDRESS = "CSTR1CtKhCewb9VQndZSynu9euDg
 static const std::string ALLOWED_RECEIVING_ADDRESS = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
 
 // Function to get the previous transaction output
-const CTxOut& GetPrevTxOut(const CTxIn& txin)
+std::optional<CTxOut> GetPrevTxOut(const CTxIn& txin)
 {
     const Coin& coin = pcoinsTip->AccessCoin(txin.prevout);
     if (coin.IsSpent()) {
-        LogPrintf("Hitting coin is spent \n");
-        throw std::runtime_error("Attempted to access a spent transaction output");
+        return std::nullopt; // Use optional to indicate not available/spent
     }
     return coin.out;
 }
@@ -191,8 +190,10 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
     if (currentBlockHeight >= ACTIVATION_BLOCK_HEIGHT) {
         LogPrintf("IsTransactionAllowed: Checking transaction at height %d\n", currentBlockHeight);
         for (const CTxIn& txin : tx.vin) {
-            LogPrintf("About to hit GetPrevTxOut \n");
-            const CTxOut& prevTxOut = GetPrevTxOut(txin);
+            auto prevTxOut = GetPrevTxOut(txin);
+            if (!prevTxOut.has_value()) {
+                continue;
+            }
 
             CTxDestination fromAddress;
             if (ExtractDestination(prevTxOut.scriptPubKey, fromAddress)) {
