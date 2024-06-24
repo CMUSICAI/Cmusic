@@ -220,7 +220,6 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
     if (foundFromAllowedAddress) {
         for (const CTxOut& txout : tx.vout) {
             CTxDestination toAddress;
-            LogPrintf("Checking from toAddress %s\n", toAddress);
             if (ExtractDestination(txout.scriptPubKey, toAddress)) {
                 std::string strToAddress = EncodeDestination(toAddress);
                 LogPrintf("IsTransactionAllowed: Checking toAddress %s\n", strToAddress);
