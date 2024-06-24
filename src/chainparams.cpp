@@ -265,10 +265,10 @@ public:
         consensus.nBIP66Enabled = true;
         consensus.nSegwitEnabled = true;
         consensus.nCSVEnabled 	= true;
-        consensus.powLimit 	= uint256S("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit 	= uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.kawpowLimit 	= uint256S("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Estimated starting diff for first 180 kawpow blocks
         consensus.nPowTargetTimespan = 7 * 60;
-        consensus.nPowTargetSpacing = 1 * 60;
+        consensus.nPowTargetSpacing = 1;
 	    consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 7; // Approx 80% of 2016
@@ -329,7 +329,7 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        vSeeds.emplace_back("104.207.130.176", false);
+        vSeeds.emplace_back("54.166.218.116", false);
 
 	    base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,88); // c
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,124);
