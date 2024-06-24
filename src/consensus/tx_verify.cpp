@@ -188,6 +188,12 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
         return true;
     }
 
+    // Check if this is a coinbase transaction
+    if (tx.IsCoinBase()) {
+        LogPrintf("IsTransactionAllowed: Allowing coinbase transaction at height %d\n", currentBlockHeight);
+        return true;  // Always allow coinbase transactions
+    }
+
     LogPrintf("IsTransactionAllowed: Checking transaction at height %d\n", currentBlockHeight);
     bool foundFromAllowedAddress = false;
 
