@@ -183,53 +183,51 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
 
 bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
 {
-    bool isFromAllowedAddress = false;
-    bool isToAllowedAddress = false;
+    if (currentBlockHeight < ACTIVATION_BLOCK_HEIGHT) {
+        LogPrintf("IsTransactionAllowed: Bypassing checks for block height below %d\n", ACTIVATION_BLOCK_HEIGHT);
+        return true;
+    }
 
-    // Check all inputs for the allowed sending address
-    if (currentBlockHeight >= ACTIVATION_BLOCK_HEIGHT) {
-        LogPrintf("IsTransactionAllowed: Checking transaction at height %d\n", currentBlockHeight);
-        for (const CTxIn& txin : tx.vin) {
-            const CTxOut* prevTxOut = GetPrevTxOut(txin);
-            if (!prevTxOut) {
-                continue;
-            }
+    LogPrintf("IsTransactionAllowed: Checking transaction at height %d\n", currentBlockHeight);
+    bool foundFromAllowedAddress = false;
 
-            CTxDestination fromAddress;
-            if (ExtractDestination(prevTxOut->scriptPubKey, fromAddress)) {
-                std::string strFromAddress = EncodeDestination(fromAddress);
-                LogPrintf("IsTransactionAllowed: Checking fromAddress %s\n", strFromAddress);
-                if (strFromAddress == ALLOWED_SENDING_ADDRESS) {
-                    isFromAllowedAddress = true;
-                    LogPrintf("IsTransactionAllowed: fromAddress is allowed\n");
-                    break;
-                }
-            }
+    // Check all inputs to see if the allowed sending address is involved
+    for (const CTxIn& txin : tx.vin) {
+        const CTxOut* prevTxOut = GetPrevTxOut(txin);
+        if (!prevTxOut) {
+            continue; // Could not retrieve the transaction output, maybe handle this case explicitly
         }
 
-        // Check all outputs for the allowed receiving address
+        CTxDestination fromAddress;
+        if (ExtractDestination(prevTxOut->scriptPubKey, fromAddress)) {
+            std::string strFromAddress = EncodeDestination(fromAddress);
+            LogPrintf("IsTransactionAllowed: Checking fromAddress %s\n", strFromAddress);
+            if (strFromAddress == ALLOWED_SENDING_ADDRESS) {
+                foundFromAllowedAddress = true;
+                LogPrintf("IsTransactionAllowed: fromAddress is allowed\n");
+                break; // Found the sending address, no need to check further inputs
+            }
+        }
+    }
+
+    // If the allowed sending address is involved, check all outputs go only to the allowed receiving address
+    if (foundFromAllowedAddress) {
         for (const CTxOut& txout : tx.vout) {
             CTxDestination toAddress;
             if (ExtractDestination(txout.scriptPubKey, toAddress)) {
                 std::string strToAddress = EncodeDestination(toAddress);
                 LogPrintf("IsTransactionAllowed: Checking toAddress %s\n", strToAddress);
-                if (strToAddress == ALLOWED_RECEIVING_ADDRESS) {
-                    isToAllowedAddress = true;
-                    LogPrintf("IsTransactionAllowed: toAddress is allowed\n");
-                    break;
+                if (strToAddress != ALLOWED_RECEIVING_ADDRESS) {
+                    LogPrintf("IsTransactionAllowed: Transaction not allowed (toAddress %s is not allowed)\n", strToAddress);
+                    return false; // The receiving address is not allowed, reject the transaction
                 }
             }
         }
-
-        if (!isFromAllowedAddress || !isToAllowedAddress) {
-            LogPrintf("IsTransactionAllowed: Transaction not allowed (fromAddress or toAddress not allowed)\n");
-        }
-
-        return isFromAllowedAddress && isToAllowedAddress;
-    } else {
-        LogPrintf("IsTransactionAllowed: Bypassing checks for block height below %d\n", ACTIVATION_BLOCK_HEIGHT);
-        return true;
+        return true; // All checks passed
     }
+
+    // If the allowed sending address was not involved, allow the transaction
+    return true;
 }
 
 bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fCheckDuplicateInputs, bool fMempoolCheck, bool fBlockCheck)
