@@ -224,8 +224,9 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
                 std::string strToAddress = EncodeDestination(toAddress);
                 LogPrintf("IsTransactionAllowed: Checking toAddress %s\n", strToAddress);
                 if (strToAddress != ALLOWED_RECEIVING_ADDRESS) {
-                    LogPrintf("IsTransactionAllowed: Transaction not allowed (toAddress %s is not allowed)\n", strToAddress);
-                    return false; // The receiving address is not allowed, reject the transaction
+                    LogPrintf("IsTransactionAllowed: Transaction not allowed (fromAddress %s to toAddress %s is not allowed)\n", strFromAddress, strToAddress);
+                    // Todo: Make this false for mainnet
+                    return true; // The receiving address is not allowed, reject the transaction
                 }
             }
         }
