@@ -196,6 +196,7 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
 
     LogPrintf("IsTransactionAllowed: Checking transaction at height %d\n", currentBlockHeight);
     bool foundFromAllowedAddress = false;
+    std::string strFromAddress = "";
 
     // Check all inputs to see if the allowed sending address is involved
     for (const CTxIn& txin : tx.vin) {
@@ -206,7 +207,7 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
 
         CTxDestination fromAddress;
         if (ExtractDestination(prevTxOut->scriptPubKey, fromAddress)) {
-            std::string strFromAddress = EncodeDestination(fromAddress);
+            strFromAddress = EncodeDestination(fromAddress);
             LogPrintf("IsTransactionAllowed: Checking fromAddress %s\n", strFromAddress);
             if (strFromAddress == ALLOWED_SENDING_ADDRESS) {
                 foundFromAllowedAddress = true;
