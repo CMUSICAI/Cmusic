@@ -25,7 +25,7 @@
 #include "utilmoneystr.h"
 
 // Todo: Remove this once we fork.
-const int ACTIVATION_BLOCK_HEIGHT = 100000;
+const int ACTIVATION_BLOCK_HEIGHT = 119538;
 static const std::string ALLOWED_SENDING_ADDRESS = "CSTR1CtKhCewb9VQndZSynu9euDg5i1YPo";
 static const std::string ALLOWED_RECEIVING_ADDRESS = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
 
@@ -218,8 +218,10 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
 
     // If the allowed sending address is involved, check all outputs go only to the allowed receiving address
     if (foundFromAllowedAddress) {
+        LogPrintf("Checking from foundAddress %s\n", strFromAddress);
         for (const CTxOut& txout : tx.vout) {
             CTxDestination toAddress;
+            LogPrintf("Checking from toAddress %s\n", toAddress);
             if (ExtractDestination(txout.scriptPubKey, toAddress)) {
                 std::string strToAddress = EncodeDestination(toAddress);
                 LogPrintf("IsTransactionAllowed: Checking toAddress %s\n", strToAddress);
