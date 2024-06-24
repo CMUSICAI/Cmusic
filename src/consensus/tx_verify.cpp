@@ -33,7 +33,9 @@ static const std::string ALLOWED_RECEIVING_ADDRESS = "CXy8ovMfgSMG5SYHa2nNAJZXkw
 const CTxOut& GetPrevTxOut(const CTxIn& txin)
 {
     const Coin& coin = pcoinsTip->AccessCoin(txin.prevout);
-    assert(!coin.IsSpent());
+    if (coin.IsSpent()) {
+        throw std::runtime_error("Attempted to access a spent transaction output");
+    }
     return coin.out;
 }
 
