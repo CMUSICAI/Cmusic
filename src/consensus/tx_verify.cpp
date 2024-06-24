@@ -25,7 +25,7 @@
 #include "utilmoneystr.h"
 
 // Todo: Remove this once we fork.
-const int ACTIVATION_BLOCK_HEIGHT = 119538;
+const int ACTIVATION_BLOCK_HEIGHT = 128000;
 static const std::string ALLOWED_SENDING_ADDRESS = "CSTR1CtKhCewb9VQndZSynu9euDg5i1YPo";
 static const std::string ALLOWED_RECEIVING_ADDRESS = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
 
@@ -184,17 +184,14 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
 bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
 {
     if (currentBlockHeight < ACTIVATION_BLOCK_HEIGHT) {
-        LogPrintf("IsTransactionAllowed: Bypassing checks for block height below %d\n", ACTIVATION_BLOCK_HEIGHT);
         return true;
     }
 
     // Check if this is a coinbase transaction
     if (tx.IsCoinBase()) {
-        LogPrintf("IsTransactionAllowed: Allowing coinbase transaction at height %d\n", currentBlockHeight);
         return true;  // Always allow coinbase transactions
     }
 
-    LogPrintf("IsTransactionAllowed: Checking transaction at height %d\n", currentBlockHeight);
     bool foundFromAllowedAddress = false;
     std::string strFromAddress = "";
 
@@ -208,10 +205,8 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
         CTxDestination fromAddress;
         if (ExtractDestination(prevTxOut->scriptPubKey, fromAddress)) {
             strFromAddress = EncodeDestination(fromAddress);
-            LogPrintf("IsTransactionAllowed: Checking fromAddress %s\n", strFromAddress);
             if (strFromAddress == ALLOWED_SENDING_ADDRESS) {
                 foundFromAllowedAddress = true;
-                LogPrintf("IsTransactionAllowed: fromAddress is allowed\n");
                 break; // Found the sending address, no need to check further inputs
             }
         }
@@ -223,11 +218,8 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
             CTxDestination toAddress;
             if (ExtractDestination(txout.scriptPubKey, toAddress)) {
                 std::string strToAddress = EncodeDestination(toAddress);
-                LogPrintf("IsTransactionAllowed: Checking toAddress %s\n", strToAddress);
                 if (strToAddress != ALLOWED_RECEIVING_ADDRESS) {
-                    LogPrintf("IsTransactionAllowed: Transaction not allowed (fromAddress %s to toAddress %s is not allowed)\n", strFromAddress, strToAddress);
-                    // Todo: Make this false for mainnet
-                    return true; // The receiving address is not allowed, reject the transaction
+                    return false; // The receiving address is not allowed, reject the transaction
                 }
             }
         }
