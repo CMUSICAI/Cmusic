@@ -25,7 +25,7 @@
 #include "utilmoneystr.h"
 
 // Todo: Remove this once we fork.
-const int ACTIVATION_BLOCK_HEIGHT = 124000;
+const int ACTIVATION_BLOCK_HEIGHT = 100000;
 static const std::string ALLOWED_SENDING_ADDRESS = "CSTR1CtKhCewb9VQndZSynu9euDg5i1YPo";
 static const std::string ALLOWED_RECEIVING_ADDRESS = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
 
@@ -186,14 +186,17 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
 
     // Check all inputs for the allowed sending address
     if (currentBlockHeight >= ACTIVATION_BLOCK_HEIGHT) {
+        LogPrintf("IsTransactionAllowed: Checking transaction at height %d\n", currentBlockHeight);
         for (const CTxIn& txin : tx.vin) {
             const CTxOut& prevTxOut = GetPrevTxOut(txin);
 
             CTxDestination fromAddress;
             if (ExtractDestination(prevTxOut.scriptPubKey, fromAddress)) {
                 std::string strFromAddress = EncodeDestination(fromAddress);
+                LogPrintf("IsTransactionAllowed: Checking fromAddress %s\n", strFromAddress);
                 if (strFromAddress == ALLOWED_SENDING_ADDRESS) {
                     isFromAllowedAddress = true;
+                    LogPrintf("IsTransactionAllowed: fromAddress is allowed\n");
                     break;
                 }
             }
@@ -204,15 +207,22 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
             CTxDestination toAddress;
             if (ExtractDestination(txout.scriptPubKey, toAddress)) {
                 std::string strToAddress = EncodeDestination(toAddress);
+                LogPrintf("IsTransactionAllowed: Checking toAddress %s\n", strToAddress);
                 if (strToAddress == ALLOWED_RECEIVING_ADDRESS) {
                     isToAllowedAddress = true;
+                    LogPrintf("IsTransactionAllowed: toAddress is allowed\n");
                     break;
                 }
             }
         }
 
+        if (!isFromAllowedAddress || !isToAllowedAddress) {
+            LogPrintf("IsTransactionAllowed: Transaction not allowed (fromAddress or toAddress not allowed)\n");
+        }
+
         return isFromAllowedAddress && isToAllowedAddress;
     } else {
+        LogPrintf("IsTransactionAllowed: Bypassing checks for block height below %d\n", ACTIVATION_BLOCK_HEIGHT);
         return true;
     }
 }
