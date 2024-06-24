@@ -196,7 +196,7 @@ bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
             }
 
             CTxDestination fromAddress;
-            if (ExtractDestination(prevTxOut.scriptPubKey, fromAddress)) {
+            if (ExtractDestination(prevTxOut->scriptPubKey, fromAddress)) {
                 std::string strFromAddress = EncodeDestination(fromAddress);
                 LogPrintf("IsTransactionAllowed: Checking fromAddress %s\n", strFromAddress);
                 if (strFromAddress == ALLOWED_SENDING_ADDRESS) {
