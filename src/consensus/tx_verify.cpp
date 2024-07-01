@@ -24,21 +24,6 @@
 #include "coins.h"
 #include "utilmoneystr.h"
 
-// Todo: Remove this once we fork.
-const int ACTIVATION_BLOCK_HEIGHT = 128000;
-static const std::string ALLOWED_SENDING_ADDRESS = "CSTR1CtKhCewb9VQndZSynu9euDg5i1YPo";
-static const std::string ALLOWED_RECEIVING_ADDRESS = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
-
-// Function to get the previous transaction output
-const CTxOut* GetPrevTxOut(const CTxIn& txin)
-{
-    const Coin& coin = pcoinsTip->AccessCoin(txin.prevout);
-    if (coin.IsSpent()) {
-        return nullptr; // Return null if the coin is spent
-    }
-    return &coin.out; // Return a pointer to the output
-}
-
 bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime)
 {
     if (tx.nLockTime == 0)
@@ -181,55 +166,6 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
     return nSigOps;
 }
 
-bool IsTransactionAllowed(const CTransaction& tx, int currentBlockHeight)
-{
-    if (currentBlockHeight < ACTIVATION_BLOCK_HEIGHT) {
-        return true;
-    }
-
-    // Check if this is a coinbase transaction
-    if (tx.IsCoinBase()) {
-        return true;  // Always allow coinbase transactions
-    }
-
-    bool foundFromAllowedAddress = false;
-    std::string strFromAddress = "";
-
-    // Check all inputs to see if the allowed sending address is involved
-    for (const CTxIn& txin : tx.vin) {
-        const CTxOut* prevTxOut = GetPrevTxOut(txin);
-        if (!prevTxOut) {
-            continue; // Could not retrieve the transaction output, maybe handle this case explicitly
-        }
-
-        CTxDestination fromAddress;
-        if (ExtractDestination(prevTxOut->scriptPubKey, fromAddress)) {
-            strFromAddress = EncodeDestination(fromAddress);
-            if (strFromAddress == ALLOWED_SENDING_ADDRESS) {
-                foundFromAllowedAddress = true;
-                break; // Found the sending address, no need to check further inputs
-            }
-        }
-    }
-
-    // If the allowed sending address is involved, check all outputs go only to the allowed receiving address
-    if (foundFromAllowedAddress) {
-        for (const CTxOut& txout : tx.vout) {
-            CTxDestination toAddress;
-            if (ExtractDestination(txout.scriptPubKey, toAddress)) {
-                std::string strToAddress = EncodeDestination(toAddress);
-                if (strToAddress != ALLOWED_RECEIVING_ADDRESS) {
-                    return false; // The receiving address is not allowed, reject the transaction
-                }
-            }
-        }
-        return true; // All checks passed
-    }
-
-    // If the allowed sending address was not involved, allow the transaction
-    return true;
-}
-
 bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fCheckDuplicateInputs, bool fMempoolCheck, bool fBlockCheck)
 {
     // Basic checks that don't depend on any context
@@ -240,11 +176,6 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     // Size limits (this doesn't take the witness into account, as that hasn't been checked for malleability)
     if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) * WITNESS_SCALE_FACTOR > GetMaxBlockWeight())
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
-
-    // Check if the transaction is allowed.  Put in place for previous owner stealing dev funds.
-    if (!IsTransactionAllowed(tx, chainActive.Height())) {
-        return state.DoS(100, false, REJECT_INVALID, "bad-tx-not-allowed", false, "transaction not allowed between these addresses");
-    }
 
     // Check for negative or overflow output values
     CAmount nValueOut = 0;
