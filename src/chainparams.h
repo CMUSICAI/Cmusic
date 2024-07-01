@@ -113,7 +113,6 @@ public:
     const std::string& AddNullQualifierTagBurnAddress() const { return strAddNullQualifierTagBurnAddress; }
     const std::string& GlobalBurnAddress() const { return strGlobalBurnAddress; }
     const std::string& CommunityAutonomousAddress() const { return strCommunityAutonomousAddress; }
-    const std::string& CommunityAutonomousAddressNew() const { return strCommunityAutonomousAddressNew; }
 
     //  Indicates whether or not the provided address is a burn address
     bool IsBurnAddress(const std::string & p_address) const
@@ -197,7 +196,6 @@ protected:
 	
 	//Community Autonomous Address   
     std::string strCommunityAutonomousAddress;
-    std::string strCommunityAutonomousAddressNew;
 
     unsigned int nDGWActivationBlock;
     unsigned int nMessagingActivationBlock;

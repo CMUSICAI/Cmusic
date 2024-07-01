@@ -234,8 +234,7 @@ public:
         strGlobalBurnAddress = "CeNvn7GXr1aLqhDx9HG9aYWnPA5qoRsz9X";
 
         // Operations Address
-        strCommunityAutonomousAddress = "CSTR1CtKhCewb9VQndZSynu9euDg5i1YPo";
-        strCommunityAutonomousAddressNew = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
+        strCommunityAutonomousAddress = "CXy8ovMfgSMG5SYHa2nNAJZXkwEYxMa5xV";
 
         // DGW Activation
         nDGWActivationBlock = 1;

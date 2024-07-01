@@ -1846,7 +1846,7 @@ static DisconnectResult DisconnectBlock(const CBlock& block, const CBlockIndex* 
         error("DisconnectBlock(): block asset undo data inconsistent");
         return DISCONNECT_FAILED;
     }
-    
+
     std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
@@ -2752,9 +2752,10 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",block.vtx[0]->GetValueOut(AreEnforcedValuesDeployed()), blockReward),
                          REJECT_INVALID, "bad-cb-amount");
-	
+
     /** CMS START */
 	//CommunityAutonomousAddress Assign 10%
+	const int CHECK_ADDRESS_HEIGHT = 128025;
 	std::string  GetCommunityAutonomousAddress 	= GetParams().CommunityAutonomousAddress();
 	CTxDestination destCommunityAutonomous 		= DecodeDestination(GetCommunityAutonomousAddress);
     if (!IsValidDestination(destCommunityAutonomous)) {
@@ -2762,7 +2763,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     }
 	// Parse CmusicAI address
     CScript scriptPubKeyCommunityAutonomous 	= GetScriptForDestination(destCommunityAutonomous);
-	
+
 	CAmount nCommunityAutonomousAmount 			= GetParams().CommunityAutonomousAmount();
 	CAmount nSubsidy 							= GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
 	CAmount nCommunityAutonomousAmountValue		= nSubsidy*nCommunityAutonomousAmount/100;
@@ -2781,20 +2782,12 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                          REJECT_INVALID, "bad-cb-community-autonomous-amount");
 	}
 	//Check 10% Address
-    std::string expectedScriptPubKey;
-
-    // Check the block height and assign the expected address accordingly
-    if (pindex->nHeight >= 280000) {
-        expectedScriptPubKey = HexStr(Params().CommunityAutonomousAddressNew());
-    } else {
-        expectedScriptPubKey = HexStr(Params().CommunityAutonomousAddress());
-    }
-
-    // Validate the coinbase transaction's address
-    if (HexStr(block.vtx[0]->vout[1].scriptPubKey) != expectedScriptPubKey) {
-        return state.DoS(100,
-                         error("ConnectBlock(): coinbase Community Autonomous Address Is Invalid. Actual: %s Should Be: %s \n", HexStr(block.vtx[0]->vout[1].scriptPubKey), expectedScriptPubKey),
-                         REJECT_INVALID, "bad-cb-community-autonomous-address");
+	if (pindex->nHeight >= CHECK_ADDRESS_HEIGHT) {
+        if( HexStr(block.vtx[0]->vout[1].scriptPubKey) != HexStr(scriptPubKeyCommunityAutonomous) )		{
+            return state.DoS(100,
+                             error("ConnectBlock(): coinbase Community Autonomous Address Is Invalid. Actual: %s Should Be: %s \n",HexStr(block.vtx[0]->vout[1].scriptPubKey), HexStr(scriptPubKeyCommunityAutonomous)),
+                             REJECT_INVALID, "bad-cb-community-autonomous-address");
+        }
     }
 	/** CMS END */
 	
