@@ -2781,11 +2781,21 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                          REJECT_INVALID, "bad-cb-community-autonomous-amount");
 	}
 	//Check 10% Address
-	if( HexStr(block.vtx[0]->vout[1].scriptPubKey) != HexStr(scriptPubKeyCommunityAutonomous) )		{
-		return state.DoS(100,
-                         error("ConnectBlock(): coinbase Community Autonomous Address Is Invalid. Actual: %s Should Be: %s \n",HexStr(block.vtx[0]->vout[1].scriptPubKey), HexStr(scriptPubKeyCommunityAutonomous)),
+    std::string expectedScriptPubKey;
+
+    // Check the block height and assign the expected address accordingly
+    if (pindex->nHeight >= 280000) {
+        expectedScriptPubKey = HexStr(Params().CommunityAutonomousAddressNew());
+    } else {
+        expectedScriptPubKey = HexStr(Params().CommunityAutonomousAddress());
+    }
+
+    // Validate the coinbase transaction's address
+    if (HexStr(block.vtx[0]->vout[1].scriptPubKey) != expectedScriptPubKey) {
+        return state.DoS(100,
+                         error("ConnectBlock(): coinbase Community Autonomous Address Is Invalid. Actual: %s Should Be: %s \n", HexStr(block.vtx[0]->vout[1].scriptPubKey), expectedScriptPubKey),
                          REJECT_INVALID, "bad-cb-community-autonomous-address");
-	}
+    }
 	/** CMS END */
 	
     if (!control.Wait())
