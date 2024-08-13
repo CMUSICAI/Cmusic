@@ -150,10 +150,10 @@ public:
 	    consensus.BIP34LockedIn = 6048; // Locked_in at height 6048
 
         // The best chain should have at least this much work
-        consensus.nMinimumChainWork = uint256S("00000000000000000000000000000000000000000000000002390b6529e07ceb"); // Block 101454
+        consensus.nMinimumChainWork = uint256S("00000000000000000000000000000000000000000000000002fae4f8246a202b"); // Block 181152
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0000000000b05d18dced07d0ba510a581bb817eb2dbed673bd5152c9f6728c9c"); // Block 101454
+        consensus.defaultAssumeValid = uint256S("00000000000c634cd20a63603886e97e35e3d7eeca67ef5bb4437f7d45ad3f95"); // Block 181152
 
         pchMessageStart[0] = 0x43; // C
         pchMessageStart[1] = 0x4d; // M
@@ -194,14 +194,15 @@ public:
             {
                 {0, uint256S("0x000000fcdb664de8b9cb710ef45ac5111d0061e5cc623d8e6582399ccb2df242")},
                 {63459, uint256S("0x000000000095ad9759911ad2d8bfc4c2d8271ae29e68384b97aa9f74efce85a9")},
-                {101454, uint256S("0x0000000000b05d18dced07d0ba510a581bb817eb2dbed673bd5152c9f6728c9c")}
+                {101454, uint256S("0x0000000000b05d18dced07d0ba510a581bb817eb2dbed673bd5152c9f6728c9c")},
+                {181152, uint256S("0x00000000000c634cd20a63603886e97e35e3d7eeca67ef5bb4437f7d45ad3f95")}
             }
         };
 
         chainTxData = ChainTxData{
-            1717971343, // UNIX timestamp of last known number of transactions (median time of the latest block)
-            24093, // Total number of transactions (from gettxoutsetinfo)
-            0.0  // Estimated number of transactions per second (replace with your calculated or estimated value if available)
+            1723511205,  // UNIX timestamp of the last known number of transactions (time of block 181152)
+            82628,       // Total number of transactions (from gettxoutsetinfo)
+            0.000725     // Estimated transactions per second (TPS)
         };
 
         /** CMS Start **/
