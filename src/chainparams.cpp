@@ -110,12 +110,13 @@ public:
         consensus.nCSVEnabled 	= true;
         consensus.powLimit 		= uint256S("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.kawpowLimit 	= uint256S("0000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Estimated starting diff for first 180 kawpow blocks
-        consensus.nPowTargetTimespan = 7 * 60;
+        consensus.nPowTargetTimespan = 20 * 60;
         consensus.nPowTargetSpacing = 1 * 60;
-	    consensus.fPowAllowMinDifficultyBlocks = false;
+        // Todo: Turn this off after network is stable
+	    consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 7; // Approx 80% of 2016
-        consensus.nMinerConfirmationWindow = 7; // nPowTargetTimespan / nPowTargetSpacing
+        consensus.nMinerConfirmationWindow = 20; // nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1653004800; // Friday, 20 May 2022 00:00:00
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1653264000; // Monday, 23 May 2022 00:00:00
