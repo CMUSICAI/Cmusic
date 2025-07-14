@@ -70,6 +70,8 @@ RUN PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') && \
         --enable-cxx \
         --disable-shared \
         --with-pic \
+        --with-bdb-libdir=/usr/local/lib \
+        --with-bdb-includedir=/usr/local/include \
         LDFLAGS="-L/usr/local/lib/" \
         CPPFLAGS="-I/usr/local/include/" && \
     make
