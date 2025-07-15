@@ -51,3 +51,17 @@ Optional Arguments
  ```
 Run: ```python ipfs_pinner.py```
 
+
+### Wallet Balance Checker
+Retrieve the current wallet balance via RPC using Node.js.
+
+This script reads the following environment variables:
+- `RPC_USER`
+- `PRC_PASSWORD` or `RPC_PASSWORD`
+- `RPC_IP`
+- `RPC_PORT`
+
+Run it with:
+```
+node check_wallet_balance.js
+```
