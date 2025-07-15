@@ -24,14 +24,15 @@ RUN tar -xzvf db-4.8.30.NC.tar.gz && \
     echo "Tar extraction completed."
 
 # Patch BerkeleyDB for modern compilers
-RUN sed -i.old 's/__atomic_compare_exchange/__atomic_compare_exchange_db/' db-4.8.30.NC/dbinc/atomic.h && \
-    sed -i.old 's/atomic_init/atomic_init_db/' db-4.8.30.NC/dbinc/atomic.h \
-        db-4.8.30.NC/mp/mp_region.c \
-        db-4.8.30.NC/mp/mp_mvcc.c \
-        db-4.8.30.NC/mp/mp_fget.c \
-        db-4.8.30.NC/mutex/mut_method.c \
-        db-4.8.30.NC/mutex/mut_tas.c && \
-    cp /usr/share/misc/config.guess /usr/share/misc/config.sub db-4.8.30.NC/dist
+RUN cd db-4.8.30.NC && \
+    sed -i 's/__atomic_compare_exchange(/__atomic_compare_exchange_db(/' dbinc/atomic.h && \
+    sed -i 's/atomic_init(/atomic_init_db(/' dbinc/atomic.h \
+        mp/mp_region.c \
+        mp/mp_mvcc.c \
+        mp/mp_fget.c \
+        mutex/mut_method.c \
+        mutex/mut_tas.c && \
+    cp /usr/share/misc/config.guess /usr/share/misc/config.sub dist/
 
 # Configure BerkeleyDB
 RUN cd db-4.8.30.NC/build_unix && \
