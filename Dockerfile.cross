@@ -1,0 +1,32 @@
+FROM ubuntu:20.04 AS builder
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install build tools for both Linux and Windows targets
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    autoconf automake autotools-dev bsdmainutils build-essential \
+    curl git libtool pkg-config python3 rename zip \
+    libssl-dev libcurl4-openssl-dev nsis osslsigncode \
+    mingw-w64 mingw-w64-x86-64-dev \
+    apt-file binutils-aarch64-linux-gnu binutils binutils-arm-linux-gnueabihf \
+    g++-aarch64-linux-gnu g++-9-aarch64-linux-gnu g++-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf \
+    g++-9-multilib gcc-9-aarch64-linux-gnu gcc-9-arm-linux-gnueabihf gcc-9-multilib \
+    gnupg pbuilder ubuntu-dev-tools xkb-data bison ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+
+WORKDIR /cmusic
+COPY . /cmusic
+
+COPY docker/build_all.sh /usr/local/bin/build_all.sh
+RUN chmod +x /usr/local/bin/build_all.sh
+
+# Run the comprehensive build script
+RUN /usr/local/bin/build_all.sh
+
+FROM ubuntu:20.04 AS final
+COPY --from=builder /cmusic/built /cmusic/built
+WORKDIR /cmusic/built
+CMD ["/bin/bash"]

@@ -1,5 +1,5 @@
 define int_vars
-#Set defaults for vars which may be overridden per-package
+# Set defaults for vars which may be overridden per-package
 $(1)_cc=$($($(1)_type)_CC)
 $(1)_cxx=$($($(1)_type)_CXX)
 $(1)_objc=$($($(1)_type)_OBJC)
@@ -12,7 +12,7 @@ $(1)_cflags=$($($(1)_type)_CFLAGS) $($($(1)_type)_$(release_type)_CFLAGS)
 $(1)_cxxflags=$($($(1)_type)_CXXFLAGS) $($($(1)_type)_$(release_type)_CXXFLAGS)
 $(1)_ldflags=$($($(1)_type)_LDFLAGS) $($($(1)_type)_$(release_type)_LDFLAGS) -L$($($(1)_type)_prefix)/lib
 $(1)_cppflags=$($($(1)_type)_CPPFLAGS) $($($(1)_type)_$(release_type)_CPPFLAGS) -I$($($(1)_type)_prefix)/include
-$(1)_recipe_hash:=
+$(1)_recipe_hash :=
 endef
 
 define int_get_all_dependencies
@@ -256,7 +256,7 @@ $(foreach package,$(all_packages),$(eval $(call int_get_build_id,$(package))))
 $(foreach package,$(all_packages),$(eval $(call int_config_attach_build_config,$(package))))
 
 #create build targets
-$(foreach package,$(all_packages),$(eval $(call int_add_cmds,$(package))))
+$(foreach package,$(all_packages),$(eval $(package)_all_sources := $($(package)_file_name) $($(package)_extra_sources) $($(package)_fetched)))
 
 #special exception: if a toolchain package exists, all non-native packages depend on it
 $(foreach package,$(packages),$(eval $($(package)_unpacked): |$($($(host_arch)_$(host_os)_native_toolchain)_cached) ))
