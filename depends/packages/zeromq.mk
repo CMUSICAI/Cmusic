@@ -6,7 +6,7 @@ $(package)_sha256_hash=04aac57f081ffa3a2ee5ed04887be9e205df3a7ddade0027460b80424
 $(package)_patches=9114d3957725acd34aa8b8d011585812f3369411.patch 9e6745c12e0b100cd38acecc16ce7db02905e27c.patch
 
 define $(package)_set_vars
-  $(package)_config_opts=--without-documentation --disable-shared --without-libsodium --disable-curve
+  $(package)_config_opts=--without-documentation --enable-shared --disable-static --without-libsodium --disable-curve
   $(package)_config_opts_linux=--with-pic
   $(package)_cxxflags=-std=c++11
 endef
