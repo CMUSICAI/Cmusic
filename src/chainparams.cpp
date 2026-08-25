@@ -110,6 +110,9 @@ public:
         consensus.nCSVEnabled 	= true;
         consensus.powLimit 		= uint256S("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.kawpowLimit 	= uint256S("0000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Estimated starting diff for first 180 kawpow blocks
+        // The last checkpoint/default-assume-valid block is 181152. Activate
+        // the header-height rule on the next block to preserve existing history.
+        consensus.nHeightHeaderCheckActivation = 181153;
         consensus.nPowTargetTimespan = 20 * 60;
         consensus.nPowTargetSpacing = 1 * 60;
         // Todo: Turn this off after network is stable
@@ -269,6 +272,7 @@ public:
         consensus.nCSVEnabled 	= true;
         consensus.powLimit 	= uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.kawpowLimit 	= uint256S("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // Estimated starting diff for first 180 kawpow blocks
+        consensus.nHeightHeaderCheckActivation = 0;
         consensus.nPowTargetTimespan = 7 * 60;
         consensus.nPowTargetSpacing = 1;
 	    consensus.fPowAllowMinDifficultyBlocks = false;
@@ -427,6 +431,7 @@ public:
         consensus.nSubsidyHalvingInterval = 150;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.kawpowLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.nHeightHeaderCheckActivation = 0;
         consensus.nPowTargetTimespan = 7 * 60;
         consensus.nPowTargetSpacing = 1 * 60;
         consensus.fPowAllowMinDifficultyBlocks = true;

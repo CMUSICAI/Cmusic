@@ -12,10 +12,48 @@
 
 #include "crypto/ethash/helpers.hpp"
 #include "crypto/ethash/progpow_test_vectors.hpp"
+#include "chainparams.h"
+#include "consensus/validation.h"
+#include "primitives/block.h"
+#include "validation.h"
 
 #include <array>
+#include <algorithm>
+#include <limits>
 
 BOOST_FIXTURE_TEST_SUITE(kawpow_tests, BasicTestingSetup)
+
+BOOST_AUTO_TEST_CASE(kawpow_header_height_validation)
+{
+    const auto& params = GetParams().GetConsensus();
+    CBlockHeader header;
+    // Keep one-too-low meaningful on testnet/regtest, where activation is 0.
+    const int expectedHeight = std::max(1, params.nHeightHeaderCheckActivation);
+    header.nTime = nKAWPOWActivationTime;
+
+    header.nHeight = expectedHeight;
+    CValidationState state;
+    BOOST_CHECK(CheckKAWPOWHeaderHeight(header, expectedHeight, params, state));
+
+    for (const uint32_t declaredHeight : {static_cast<uint32_t>(expectedHeight - 1),
+                                          static_cast<uint32_t>(expectedHeight + 1),
+                                          std::numeric_limits<uint32_t>::max()}) {
+        header.nHeight = declaredHeight;
+        CValidationState invalidState;
+        BOOST_CHECK(!CheckKAWPOWHeaderHeight(header, expectedHeight, params, invalidState));
+        BOOST_CHECK_EQUAL(invalidState.GetRejectReason(), "bad-blk-height");
+    }
+
+    header.nHeight = expectedHeight + 1;
+    header.nTime = nKAWPOWActivationTime - 1;
+    CValidationState historicalState;
+    BOOST_CHECK(CheckKAWPOWHeaderHeight(header, expectedHeight, params, historicalState));
+
+    header.nTime = nKAWPOWActivationTime;
+    header.nHeight = expectedHeight - 1;
+    CValidationState boundaryState;
+    BOOST_CHECK(!CheckKAWPOWHeaderHeight(header, expectedHeight, params, boundaryState));
+}
 
 BOOST_AUTO_TEST_CASE(kawpow_l1_cache)
 {

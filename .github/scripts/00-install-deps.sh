@@ -107,7 +107,8 @@ else
 fi
 
 if [[ ${OS} != "osx" ]]; then
-    sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+    # Ubuntu 22.04 no longer ships Python 2. Keep the legacy `python`
+    # command available through the supported Python 3 interpreter.
     sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 2
 fi
 

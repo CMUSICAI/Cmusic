@@ -5,7 +5,7 @@ on:
 
 jobs:
   build_and_package:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repository
@@ -74,7 +74,7 @@ jobs:
 
       - name: Upload config.log if failure
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: config-log
           path: ${GITHUB_WORKSPACE}/build/config.log
@@ -159,7 +159,7 @@ jobs:
           echo "Checksums calculated. Package installation and generation complete."
 
       - name: Upload Package Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: cmusicai-package
           path: |
@@ -180,7 +180,7 @@ jobs:
 
       - name: Upload build log
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: build-log
           path: depends/build.log

@@ -70,6 +70,8 @@ struct Params {
     /** Proof of work parameters */
     uint256 powLimit;
     uint256 kawpowLimit;
+    /** Height at which KAWPOW headers must declare their contextual height. */
+    int nHeightHeaderCheckActivation;
     bool fPowAllowMinDifficultyBlocks;
     bool fPowNoRetargeting;
     int64_t nPowTargetSpacing;

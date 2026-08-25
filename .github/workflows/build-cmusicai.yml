@@ -15,7 +15,7 @@ env:
 
 jobs:
   check-jobs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
     steps:
@@ -39,7 +39,7 @@ jobs:
 
   build:
     needs: check-jobs
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
@@ -90,7 +90,7 @@ jobs:
 
       - if: ${{ needs.check-jobs.outputs.should_skip != 'true' }}
         name: Upload Artifacts to Job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.OS }}-${{ github.event.inputs.version }}
           path: ${{ github.workspace }}/release

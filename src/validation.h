@@ -42,6 +42,7 @@
 #include <assets/snapshotrequestdb.h>
 
 class CBlockIndex;
+class CBlockHeader;
 class CBlockTreeDB;
 class CChainParams;
 class CCoinsViewDB;
@@ -60,6 +61,11 @@ class CSnapshotRequestDB;
 
 struct PrecomputedTransactionData;
 struct LockPoints;
+namespace Consensus { struct Params; }
+
+/** Validate the declared height of a KAWPOW header against its parent-derived height. */
+bool CheckKAWPOWHeaderHeight(const CBlockHeader& block, int expectedHeight,
+                             const Consensus::Params& consensusParams, CValidationState& state);
 
 /** Default for -whitelistrelay. */
 static const bool DEFAULT_WHITELISTRELAY = true;
