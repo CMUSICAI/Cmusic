@@ -23,8 +23,20 @@ RUN wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz && \
 RUN tar -xzvf db-4.8.30.NC.tar.gz && \
     echo "Tar extraction completed."
 
+# Patch BerkeleyDB for modern compilers
+RUN cd db-4.8.30.NC && \
+    sed -i 's/__atomic_compare_exchange(/__atomic_compare_exchange_db(/' dbinc/atomic.h && \
+    sed -i 's/atomic_init(/atomic_init_db(/' dbinc/atomic.h \
+        mp/mp_region.c \
+        mp/mp_mvcc.c \
+        mp/mp_fget.c \
+        mutex/mut_method.c \
+        mutex/mut_tas.c && \
+    cp /usr/share/misc/config.guess /usr/share/misc/config.sub dist/
+
 # Configure BerkeleyDB
 RUN cd db-4.8.30.NC/build_unix && \
+    CXXFLAGS="-std=c++11" \
     ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/usr/local && \
     echo "Configuration completed."
 
@@ -45,7 +57,7 @@ COPY . /src/CmusicAI
 # Build CmusicAI for Linux
 WORKDIR /src/CmusicAI
 RUN ./autogen.sh && \
-    ./configure LDFLAGS="-L/usr/local/lib/" CPPFLAGS="-I/usr/local/include/" --enable-cxx --disable-shared --with-pic --with-bdb-libdir=/usr/local/lib --with-bdb-includedir=/usr/local/include && \
+    ./configure LDFLAGS="-L/usr/local/lib/" CPPFLAGS="-I/usr/local/include/" CXXFLAGS="-std=c++11" --enable-cxx --disable-shared --with-pic --with-bdb-libdir=/usr/local/lib --with-bdb-includedir=/usr/local/include && \
     make
 
 # Windows cross-compilation stage
@@ -66,8 +78,11 @@ RUN PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') && \
         --enable-cxx \
         --disable-shared \
         --with-pic \
+        --with-bdb-libdir=/usr/local/lib \
+        --with-bdb-includedir=/usr/local/include \
         LDFLAGS="-L/usr/local/lib/" \
-        CPPFLAGS="-I/usr/local/include/" && \
+        CPPFLAGS="-I/usr/local/include/" \
+        CXXFLAGS="-std=c++11" && \
     make
 
 # Final stage to gather all binaries
